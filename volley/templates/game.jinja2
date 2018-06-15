@@ -1,4 +1,223 @@
-{{ game.name }}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+    <title>Volley | Game Tracker</title>
+    <link rel="shortcut icon" href="{{ request.static_url('volley:static/volley-16x16.png') }}">
+    <link href="{{ request.static_url('volley:static/semantic/dist/semantic.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+</head>
+<body>
+<div class="ui massive fixed inverted borderless menu">
+    <div class="ui container">
 
-Matches:
+        <a class="header item" href="/">
+            <div>
+                <img src="{{ request.static_url('volley:static/volley.png') }}" height="32" width="32"
+                     alt="Volley | Game Tracker"/>
+                Volley
+            </div>
+        </a>
 
+        {% for g in all_games %}
+            <a class="{{ "active" if game.name == g }} item" href="/{{ g|lower }}">{{ g }}</a>
+        {% endfor %}
+
+    </div>
+</div>
+<div class="ui main center aligned container">
+    <h1 class="ui huge header">
+        Add {{ game.name }} Game
+    </h1>
+    <form class="ui form" id="addmatch">
+        <div class="ui massive grid">
+            <div class="seven wide column">
+
+                <div class="ui sub header left aligned">Team A</div>
+
+                <div class="ui grid">
+                    <div class="twelve wide column">
+                        <div class="ui fluid multiple search selection dropdown playerselect">
+                            <input name="team_a" type="hidden">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Players</div>
+                            <div class="menu">
+                                {% for player in game.players.keys() %}
+                                    <div class="item" data-value="{{ player }}">{{ player }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="four wide column">
+                        <div class="ui input focus fluid">
+                            <input name="score_a" placeholder="Score A">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="two wide column bottom aligned">
+                <button type="submit" class="ui submit button">VS.</button>
+            </div>
+            <div class="seven wide column">
+                <div class="ui sub header right aligned">Team B</div>
+                <div class="ui grid">
+                    <div class="four wide column">
+                        <div class="ui input focus fluid">
+                            <input name="score_b" placeholder="Score B">
+                        </div>
+                    </div>
+                    <div class="twelve wide column">
+                        <div class="ui fluid multiple search selection dropdown playerselect">
+                            <input name="team_b" type="hidden">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Players</div>
+                            <div class="menu">
+                                {% for player in game.players.keys() %}
+                                    <div class="item" data-value="{{ player }}">{{ player }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="ui center aligned container content">
+    <h1 class="ui huge header">
+        History
+    </h1>
+    <div class="ui massive grid">
+        <div class="eight wide column">
+            <table class="ui celled striped table">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Team A</th>
+                    <th>Score</th>
+                    <th>Team B</th>
+                    <th>Odds</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for match in matches %}
+                    <tr>
+                        <td>{{ match.date.strftime("%d.%m.%Y") }}</td>
+                        <td>{% for p in match.teams[0] %}{{ p.name }}{{ ',' if not loop.last }} {% endfor %}</td>
+                        <td>{{ match.score[0] }} - {{ match.score[1] }}</td>
+                        <td>{% for p in match.teams[1] %}{{ p.name }}{{ ',' if not loop.last }} {% endfor %}</td>
+                        <td>???</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="eight wide column">
+            <table class="ui celled striped table">
+                <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Matches</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>σ (Confidence)</th>
+                    <th>μ (Skill)</th>
+                    <th>Rating</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for p in players %}
+                    <tr>
+                        <td>{{ p.name }}</td>
+                        <td>{{ p.matches|length }}</td>
+                        <td>{{ p.wins()|length }}</td>
+                        <td>{{ p.losses()|length }}</td>
+                        <td>{{ "%0.2f" % p.confidence() }}</td>
+                        <td>{{ "%0.2f" % p.skill() }}</td>
+                        <td>{{ "%0.2f" % p.exposure() }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+<script
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
+<script src="{{ request.static_url('volley:static/semantic/dist/semantic.min.js') }}"></script>
+
+
+<style type="text/css">
+    .main.container {
+        margin-top: 7em;
+    }
+
+    .container.content {
+        margin-top: 3em;
+    }
+</style>
+
+<script>
+    // Allow multiple selections, remove selected players from the opposite team as well, as no player can be in
+    // both teams simultaneously
+    $('.ui.dropdown.playerselect').dropdown({
+        allowAdditions: true,
+        keyboardShortcuts: false,
+        onAdd: function (addedValue) {
+            $('.ui.dropdown.playerselect .item').filter("[data-value='" + addedValue + "']").addClass("filtered");
+        },
+        onRemove: function (removedValue) {
+            $('.ui.dropdown.playerselect .item').filter("[data-value='" + removedValue + "']").removeClass("filtered");
+        }
+    });
+
+    // Load initial values for the form
+    $('#addmatch').form({
+        keyboardShortcuts: false
+    });
+
+    // Post data to the server on submit, reload the page on a successfully added game
+    $('#addmatch').form({
+        fields: {
+            score_a: 'empty',
+            score_b: 'empty'
+        },
+        keyboardShortcuts: false,
+        onSuccess: function (event, fields) {
+            event.preventDefault();
+            $('#addmatch').addClass('loading');
+            $.ajax({
+                type: 'post',
+                url: '/{{ game.name }}/match/add',
+                data: $('form').serialize(),
+                success: function () {
+                    $('input[name=score_a]').val('');
+                    $('input[name=score_b]').val('');
+                    location.reload()
+                },
+                error: function (xhr, status, error) {
+                    $('#addmatch').removeClass('loading');
+                    alert(error);
+                }
+            })
+        }
+    })
+
+    $('#addmatch').on('keyup keypress', function (e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+</script>
+</body>
+</html>

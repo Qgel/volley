@@ -7,7 +7,11 @@ from datetime import datetime
 import trueskill
 
 class Player(Persistent):
-
+    """
+    A Player plays matches. He is local two a Game, so a single physical Person could be two distinct 'Player' objects.
+    This is because the Player has a skill rating associated with it, which only makes sense for
+    his skill in a single game.
+    """
     def __init__(self, name):
         self.name = name
         # Trueskill Rating for this player
@@ -19,20 +23,54 @@ class Player(Persistent):
         self._rating = rating
         self._p_changed = True
 
-    def get_rating(self):
-        return self._rating
+    def skill(self):
+        return self._rating.mu
 
-def Match(Persistent):
+    def confidence(self):
+        return self._rating.sigma
 
+    def exposure(self):
+        return trueskill.expose(self._rating)
+
+    def wins(self):
+        return [m for m in self.matches if m.won(self)]
+
+    def losses(self):
+        return [m for m in self.matches if not m.won(self) and not m.draw()]
+
+
+class Match(Persistent):
+    """
+    A Match is composed of two teams and a score/winner of the match
+    """
     def __init__(self, teams, score):
-        self._date = datetime.now()
+        self.date = datetime.now()
 
-        self._teams = teams
-        self._score = score
+        self.teams = teams
+        self.score = score
 
+    def team_a_won(self):
+        return self.score[0] > self.score[1]
+
+    def draw(self):
+        return self.score[0] == self.score[1]
+
+    def team_b_won(self):
+        return self.score[1] > self.score[0];
+
+    def participated(self, player):
+        return player in self.teams[0] or player in self.teams[1]
+
+    def won(self, player):
+        return (player in self.teams[0] and self.team_a_won()) \
+               or (player in self.teams[1] and self.team_b_won())
 
 
 class Game(Persistent):
+    """
+    A Game aggregates the players and matches that are part of a competition. For example, a Game could be 'Football'
+    or 'Hockey'
+    """
     def __init__(self, name):
         self.name = name
         # Player name -> Player
@@ -79,7 +117,10 @@ class Context(PersistentMapping):
 
     def __init__(self):
         self.games = PersistentMapping()
-        self.games["volleyball"] = Game("Volleyball")
+
+        # Games currently supported
+        self.games["volleyball"] = Game('Volleyball')
+        self.games['kicker'] = Game('Kicker')
 
 def appmaker(zodb_root):
     if not 'app_root' in zodb_root:

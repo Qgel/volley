@@ -1,21 +1,56 @@
 from pyramid.view import view_config
+from pyramid.compat import escape
+from pyramid.response import Response
 
 import pyramid.httpexceptions as exceptions
 
 from .models import Context
 
-
-@view_config(context=Context, renderer='templates/index.jinja2', route_name="index")
-def index_view(context, request):
-    game_names = sorted(list(context.games.keys()))
-    return {'games': game_names}
-
-@view_config(context=Context, renderer='templates/game.jinja2', route_name="game")
-def game_view(context, request):
-    game_name = request.matchdict['game'].lower()
+def get_game(context, name):
+    """
+    :param context: The ORM context
+    :param name: The name of the game
+    :return: The game, or raises a HTTPNotFound if no game of that name exists.
+    """
+    game_name = name.lower()
     if not game_name in context.games:
         raise exceptions.HTTPNotFound()
 
-    game = context.games[game_name]
+    return context.games[game_name]
 
-    return {'game': game}
+@view_config(context=Context, route_name="index")
+def index_view(context, request):
+    game_names = list(context.games.keys())
+    raise exceptions.HTTPFound("/{}".format(game_names[0]))
+
+@view_config(context=Context, renderer='templates/game.jinja2', route_name="game")
+def game_view(context, request):
+    game = get_game(context, request.matchdict['game'])
+    matches = sorted(game.matches, key = lambda m: m.date, reverse=True)
+    players = sorted(game.players.values(), key = lambda p: p.exposure(), reverse=True)
+    all_games = [g.name for g in context.games.values()]
+    return {'game': game, 'matches' : matches, 'players' : players, 'all_games' : all_games}
+
+@view_config(context=Context, route_name="game_add")
+def game_add(context, request):
+    team_a = [escape(s) for s in request.params['team_a'].split(',')]
+    team_b = [escape(s) for s in request.params['team_b'].split(',')]
+    score_a = int(request.params['score_a'])
+    score_b = int(request.params['score_b'])
+
+    # Check if players on each team are unique
+    for player_a in team_a:
+        if player_a in team_b:
+            raise exceptions.HTTPNotAcceptable # TODO: is this the right error code for this?
+
+    game = get_game(context, request.matchdict['game'])
+    game.add_match([team_a, team_b], [score_a, score_b])
+
+    print(len(game.matches))
+    return Response(status='200 OK')
+
+
+
+
+
+

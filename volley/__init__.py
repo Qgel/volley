@@ -19,6 +19,7 @@ def main(global_config, **settings):
         config.add_static_view('static', 'static', cache_max_age=3600)
         config.add_route('index', '/')
         config.add_route('game', '/{game}')
+        config.add_route('game_add', '/{game}/match/add')
         config.scan()
         app = config.make_wsgi_app()
     return app
