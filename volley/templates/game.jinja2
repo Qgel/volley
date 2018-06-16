@@ -30,6 +30,15 @@
     <h1 class="ui huge header">
         Add {{ game.name }} Game
     </h1>
+
+    <div id="game-submit-message" class="ui negative message" style="display: none;">
+        <i class="close icon"></i>
+        <div class="header">
+            Error Subitting Game
+        </div>
+        <p id="game-submit-error"></p>
+    </div>
+
     <form class="ui form" id="addmatch">
         <div class="ui massive grid">
             <div class="seven wide column">
@@ -158,7 +167,8 @@
                 },
                 error: function (xhr, status, error) {
                     $('#addmatch').removeClass('loading');
-                    alert(error);
+                    $('#game-submit-error').html(xhr.responseText)
+                    $('#game-submit-message').transition('fade in')
                 }
             })
         }
@@ -171,6 +181,15 @@
             return false;
         }
     });
+
+    $('.message .close')
+        .on('click', function () {
+            $(this)
+                .closest('.message')
+                .transition('fade')
+            ;
+        })
+    ;
 
 </script>
 </body>

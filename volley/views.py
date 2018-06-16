@@ -35,13 +35,21 @@ def game_view(context, request):
 def game_add(context, request):
     team_a = [escape(s) for s in request.params['team_a'].split(',')]
     team_b = [escape(s) for s in request.params['team_b'].split(',')]
-    score_a = int(request.params['score_a'])
-    score_b = int(request.params['score_b'])
+
+    try:
+        score_a = int(request.params['score_a'])
+        score_b = int(request.params['score_b'])
+    except ValueError:
+        return Response(body='Invalid score value!', status='406 Not Acceptable')
+
+
+    if score_a < 0 or score_b < 0:
+        return Response(body='Score may not be negative!', status='406 Not Acceptable')
 
     # Check if players on each team are unique
     for player_a in team_a:
         if player_a in team_b:
-            raise exceptions.HTTPNotAcceptable # TODO: is this the right error code for this?
+            return Response(body='Player {} appears in both teams!'.format(player_a), status='406 Not Acceptable')
 
     game = get_game(context, request.matchdict['game'])
     game.add_match([team_a, team_b], [score_a, score_b])
