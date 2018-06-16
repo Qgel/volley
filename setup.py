@@ -16,6 +16,7 @@ requires = [
     'transaction',
     'ZODB3',
     'waitress',
+    'trueskill',
     ]
 
 setup(name='volley',
