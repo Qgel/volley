@@ -91,57 +91,11 @@
     </h1>
     <div class="ui massive grid">
         <div class="eight wide column">
-            <table class="ui celled striped table">
-                <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Team A</th>
-                    <th>Score</th>
-                    <th>Team B</th>
-                    <th>Odds</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for match in matches %}
-                    <tr>
-                        <td>{{ match.date.strftime("%d.%m.%Y") }}</td>
-                        <td>{% for p in match.teams[0] %}{{ p.name }}{{ ',' if not loop.last }} {% endfor %}</td>
-                        <td>{{ match.score[0] }} - {{ match.score[1] }}</td>
-                        <td>{% for p in match.teams[1] %}{{ p.name }}{{ ',' if not loop.last }} {% endfor %}</td>
-                        <td>???</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% include 'match_table.jinja2' %}
         </div>
 
         <div class="eight wide column">
-            <table class="ui celled striped table">
-                <thead>
-                <tr>
-                    <th>Player</th>
-                    <th>Matches</th>
-                    <th>Wins</th>
-                    <th>Losses</th>
-                    <th>σ (Confidence)</th>
-                    <th>μ (Skill)</th>
-                    <th>Rating</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for p in players %}
-                    <tr>
-                        <td>{{ p.name }}</td>
-                        <td>{{ p.matches|length }}</td>
-                        <td>{{ p.wins()|length }}</td>
-                        <td>{{ p.losses()|length }}</td>
-                        <td>{{ "%0.2f" % p.confidence() }}</td>
-                        <td>{{ "%0.2f" % p.skill() }}</td>
-                        <td>{{ "%0.2f" % p.exposure() }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% include 'player_table.jinja2' %}
         </div>
     </div>
 </div>

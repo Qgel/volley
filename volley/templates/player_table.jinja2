@@ -1,0 +1,26 @@
+<table class="ui celled striped table">
+    <thead>
+    <tr>
+        <th>Player</th>
+        <th>Matches</th>
+        <th>Wins</th>
+        <th>Losses</th>
+        <th>σ (Confidence)</th>
+        <th>μ (Skill)</th>
+        <th>Rating</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for p in players %}
+        <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.matches|length }}</td>
+            <td>{{ p.wins()|length }}</td>
+            <td>{{ p.losses()|length }}</td>
+            <td>{{ "%0.2f" % p.confidence() }}</td>
+            <td>{{ "%0.2f" % p.skill() }}</td>
+            <td>{{ "%0.2f" % p.exposure() }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
