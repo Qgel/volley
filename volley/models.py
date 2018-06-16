@@ -98,6 +98,10 @@ class Game(Persistent):
 
         self.recalculate_ratings()
 
+        for p in list(self.players.keys()):
+            if not self.players[p].matches:
+                self.players.pop(p)
+
     def add_match(self, teams, score):
         players_a = [self.get_player(name) for name in teams[0]]
         players_b = [self.get_player(name) for name in teams[1]]
