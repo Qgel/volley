@@ -21,7 +21,7 @@ def get_game(context, name):
 @view_config(context=Context, route_name="index")
 def index_view(context, request):
     game_names = list(context.games.keys())
-    raise exceptions.HTTPFound("/{}/".format(game_names[0]))
+    return exceptions.HTTPFound("/{}/".format(game_names[0]))
 
 @view_config(context=Context, renderer='templates/game.jinja2', route_name="game")
 def game_view(context, request):
@@ -31,7 +31,7 @@ def game_view(context, request):
     all_games = [g.name for g in context.games.values()]
     return {'game': game, 'matches' : matches, 'players' : players, 'all_games' : all_games}
 
-@view_config(context=Context, route_name="game_add")
+@view_config(context=Context, route_name="match_add")
 def game_add(context, request):
     team_a = [escape(s) for s in request.params['team_a'].split(',')]
     team_b = [escape(s) for s in request.params['team_b'].split(',')]
@@ -56,6 +56,20 @@ def game_add(context, request):
 
     print(len(game.matches))
     return Response(status='200 OK')
+
+@view_config(context=Context, route_name="match_delete")
+def match_delete(context, request):
+    uuid = request.params['id']
+    game_name = request.matchdict['game']
+    game = get_game(context, game_name)
+
+    match = [m for m in game.matches if str(m.uuid) == uuid]
+    if len(match) != 1:
+        raise exceptions.HTTPNotFound
+
+    game.delete_match(match[0])
+
+    return exceptions.HTTPFound("/{}/".format(game_name))
 
 
 

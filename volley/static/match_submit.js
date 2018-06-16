@@ -4,7 +4,8 @@ $('.ui.dropdown.playerselect').dropdown({
     allowAdditions: true,
     keyboardShortcuts: false,
     onAdd: function (addedValue) {
-        $('.ui.dropdown.playerselect .item').filter("[data-value='" + addedValue + "']").addClass("filtered");
+      var test  =  $('.ui.dropdown.playerselect .item').filter("[data-value='" + addedValue + "']");
+      test.addClass("filtered");
     },
     onRemove: function (removedValue) {
         $('.ui.dropdown.playerselect .item').filter("[data-value='" + removedValue + "']").removeClass("filtered");

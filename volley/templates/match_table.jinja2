@@ -6,6 +6,7 @@
         <th>Score</th>
         <th>Team B</th>
         <th>Odds</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -16,6 +17,7 @@
             <td>{{ match.score[0] }} - {{ match.score[1] }}</td>
             <td>{% for p in match.teams[1] %}{{ p.name }}{{ ',' if not loop.last }} {% endfor %}</td>
             <td>???</td>
+            <td><a href="match/delete?id={{ match.uuid }}">Delete</a></td>
         </tr>
     {% endfor %}
     </tbody>

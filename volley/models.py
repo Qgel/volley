@@ -3,6 +3,8 @@ from persistent.list import PersistentList
 from persistent import Persistent
 
 from datetime import datetime
+from uuid import uuid4
+import itertools
 
 import trueskill
 
@@ -22,6 +24,9 @@ class Player(Persistent):
     def set_rating(self, rating):
         self._rating = rating
         self._p_changed = True
+
+    def reset_rating(self):
+        self.set_rating(trueskill.Rating())
 
     def skill(self):
         return self._rating.mu
@@ -48,6 +53,8 @@ class Match(Persistent):
 
         self.teams = teams
         self.score = score
+
+        self.uuid = uuid4()
 
     def team_a_won(self):
         return self.score[0] > self.score[1]
@@ -78,6 +85,19 @@ class Game(Persistent):
         # List of all matches for this game
         self.matches = PersistentList()
 
+    def delete_match(self, match):
+        if not match in self.matches:
+            return
+
+        self.matches.remove(match)
+
+        players = match.teams[0] + match.teams[1]
+        for p in players:
+            if match in p.matches:
+                p.matches.remove(match)
+
+        self.recalculate_ratings()
+
     def add_match(self, teams, score):
         players_a = [self.get_player(name) for name in teams[0]]
         players_b = [self.get_player(name) for name in teams[1]]
@@ -86,24 +106,36 @@ class Game(Persistent):
         match = Match([players_a, players_b], score)
         self.matches.append(match)
 
-        ratings_a = [p._rating for p in players_a]
-        ratings_b = [p._rating for p in players_b]
+        self.update_player_ratings(match)
+
+    def update_player_ratings(self, match):
+        ratings_a = [p._rating for p in match.teams[0]]
+        ratings_b = [p._rating for p in match.teams[1]]
 
         # Sort by score and get rank indices
-        rank = list(zip(score, range(len(score))))
+        rank = list(zip(match.score, range(len(match.score))))
         rank.sort(key = lambda r: r[0], reverse=True)
         rank_indices = list(zip(*rank))[1]
 
         # Calculate new Ratings using trueskill algorithm
         new_ratings = trueskill.rate([ratings_a, ratings_b], ranks=rank_indices)
 
-        for r,p in zip(new_ratings[0], players_a):
+        for r,p in zip(new_ratings[0], match.teams[0]):
             p.set_rating(r)
             p.matches.append(match)
 
-        for r, p in zip(new_ratings[1], players_b):
+        for r, p in zip(new_ratings[1], match.teams[1]):
             p.set_rating(r)
             p.matches.append(match)
+
+
+    def recalculate_ratings(self):
+        for player in self.players.values():
+            player.reset_rating()
+            player.matches.clear()
+
+        for match in self.matches:
+            self.update_player_ratings(match)
 
 
     def get_player(self, name):
