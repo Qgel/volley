@@ -5,6 +5,8 @@ from persistent import Persistent
 from datetime import datetime
 from uuid import uuid4
 import itertools
+import math
+from fractions import Fraction
 
 import trueskill
 
@@ -54,7 +56,22 @@ class Match(Persistent):
         self.teams = teams
         self.score = score
 
+        a_win_probability =  self.win_probability(teams[0], teams[1])
+        frac = Fraction(int(round(a_win_probability * 100)), int(round((1-a_win_probability) * 100)))
+        self.stats = {
+            'odds_a' : frac.numerator,
+            'odds_b' : frac.denominator
+        }
+
         self.uuid = uuid4()
+
+    def win_probability(self, team1, team2):
+        delta_mu = sum(r.skill() for r in team1) - sum(r.skill() for r in team2)
+        sum_sigma = sum(r.confidence() ** 2 for r in itertools.chain(team1, team2))
+        size = len(team1) + len(team2)
+        denom = math.sqrt(size * (trueskill.BETA * trueskill.BETA) + sum_sigma)
+        ts = trueskill.global_env()
+        return ts.cdf(delta_mu / denom)
 
     def team_a_won(self):
         return self.score[0] > self.score[1]

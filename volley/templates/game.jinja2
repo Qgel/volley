@@ -28,7 +28,7 @@
         </a>
 
         {% for g in all_games %}
-            <a class="{{ "active" if game.name == g }} item" href="/{{ g|lower }}">{{ g }}</a>
+            <a class="{{ "active" if game.name == g }} item" href="/{{ g|lower }}/">{{ g }}</a>
         {% endfor %}
 
     </div>
