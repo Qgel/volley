@@ -9,6 +9,13 @@
           type="text/css"/>
 </head>
 <body>
+
+<script
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
+<script src="{{ request.static_url('volley:static/semantic/dist/semantic.min.js') }}"></script>
+
 <div class="ui massive fixed inverted borderless menu">
     <div class="ui container">
 
@@ -26,72 +33,14 @@
 
     </div>
 </div>
+
 <div class="ui main center aligned container">
     <h1 class="ui huge header">
         Add {{ game.name }} Game
     </h1>
 
-    <div id="game-submit-message" class="ui negative message" style="display: none;">
-        <i class="close icon"></i>
-        <div class="header">
-            Error Subitting Game
-        </div>
-        <p id="game-submit-error"></p>
-    </div>
+    {% include 'match_submit.jinja2' %}
 
-    <form class="ui form" id="addmatch">
-        <div class="ui massive grid">
-            <div class="seven wide column">
-
-                <div class="ui sub header left aligned">Team A</div>
-
-                <div class="ui grid">
-                    <div class="twelve wide column">
-                        <div class="ui fluid multiple search selection dropdown playerselect">
-                            <input name="team_a" type="hidden">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Players</div>
-                            <div class="menu">
-                                {% for player in game.players.keys() %}
-                                    <div class="item" data-value="{{ player }}">{{ player }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="four wide column">
-                        <div class="ui input focus fluid">
-                            <input name="score_a" placeholder="Score A">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="two wide column bottom aligned">
-                <button type="submit" class="ui submit button">VS.</button>
-            </div>
-            <div class="seven wide column">
-                <div class="ui sub header right aligned">Team B</div>
-                <div class="ui grid">
-                    <div class="four wide column">
-                        <div class="ui input focus fluid">
-                            <input name="score_b" placeholder="Score B">
-                        </div>
-                    </div>
-                    <div class="twelve wide column">
-                        <div class="ui fluid multiple search selection dropdown playerselect">
-                            <input name="team_b" type="hidden">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Players</div>
-                            <div class="menu">
-                                {% for player in game.players.keys() %}
-                                    <div class="item" data-value="{{ player }}">{{ player }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
 </div>
 
 <div class="ui center aligned container content">
@@ -110,13 +59,6 @@
 </div>
 </div>
 
-<script
-        src="https://code.jquery.com/jquery-3.1.1.min.js"
-        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-        crossorigin="anonymous"></script>
-<script src="{{ request.static_url('volley:static/semantic/dist/semantic.min.js') }}"></script>
-
-
 <style type="text/css">
     .main.container {
         margin-top: 7em;
@@ -127,70 +69,6 @@
     }
 </style>
 
-<script>
-    // Allow multiple selections, remove selected players from the opposite team as well, as no player can be in
-    // both teams simultaneously
-    $('.ui.dropdown.playerselect').dropdown({
-        allowAdditions: true,
-        keyboardShortcuts: false,
-        onAdd: function (addedValue) {
-            $('.ui.dropdown.playerselect .item').filter("[data-value='" + addedValue + "']").addClass("filtered");
-        },
-        onRemove: function (removedValue) {
-            $('.ui.dropdown.playerselect .item').filter("[data-value='" + removedValue + "']").removeClass("filtered");
-        }
-    });
 
-    // Load initial values for the form
-    $('#addmatch').form({
-        keyboardShortcuts: false
-    });
-
-    // Post data to the server on submit, reload the page on a successfully added game
-    $('#addmatch').form({
-        fields: {
-            score_a: 'empty',
-            score_b: 'empty'
-        },
-        keyboardShortcuts: false,
-        onSuccess: function (event, fields) {
-            event.preventDefault();
-            $('#addmatch').addClass('loading');
-            $.ajax({
-                type: 'post',
-                url: '/{{ game.name }}/match/add',
-                data: $('form').serialize(),
-                success: function () {
-                    $('input[name=score_a]').val('');
-                    $('input[name=score_b]').val('');
-                    location.reload()
-                },
-                error: function (xhr, status, error) {
-                    $('#addmatch').removeClass('loading');
-                    $('#game-submit-error').html(xhr.responseText)
-                    $('#game-submit-message').transition('fade in')
-                }
-            })
-        }
-    })
-
-    $('#addmatch').on('keyup keypress', function (e) {
-        var keyCode = e.keyCode || e.which;
-        if (keyCode === 13) {
-            e.preventDefault();
-            return false;
-        }
-    });
-
-    $('.message .close')
-        .on('click', function () {
-            $(this)
-                .closest('.message')
-                .transition('fade')
-            ;
-        })
-    ;
-
-</script>
 </body>
 </html>

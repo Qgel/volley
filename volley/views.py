@@ -21,7 +21,7 @@ def get_game(context, name):
 @view_config(context=Context, route_name="index")
 def index_view(context, request):
     game_names = list(context.games.keys())
-    raise exceptions.HTTPFound("/{}".format(game_names[0]))
+    raise exceptions.HTTPFound("/{}/".format(game_names[0]))
 
 @view_config(context=Context, renderer='templates/game.jinja2', route_name="game")
 def game_view(context, request):

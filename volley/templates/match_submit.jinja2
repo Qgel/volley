@@ -1,0 +1,63 @@
+<div id="game-submit-message" class="ui negative message" style="display: none;">
+    <i class="close icon"></i>
+    <div class="header">
+        Error Subitting Game
+    </div>
+    <p id="game-submit-error">Unkown Error</p>
+</div>
+
+<form class="ui form" id="addmatch">
+    <div class="ui massive grid">
+        <div class="seven wide column">
+
+            <div class="ui sub header left aligned">Team A</div>
+
+            <div class="ui grid">
+                <div class="twelve wide column">
+                    <div class="ui fluid multiple search selection dropdown playerselect">
+                        <input name="team_a" type="hidden">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Players</div>
+                        <div class="menu">
+                            {% for player in game.players.keys() %}
+                                <div class="item" data-value="{{ player }}">{{ player }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide column">
+                    <div class="ui input focus fluid">
+                        <input name="score_a" placeholder="Score A">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="two wide column bottom aligned">
+            <button type="submit" class="ui submit button">VS.</button>
+        </div>
+        <div class="seven wide column">
+            <div class="ui sub header right aligned">Team B</div>
+            <div class="ui grid">
+                <div class="four wide column">
+                    <div class="ui input focus fluid">
+                        <input name="score_b" placeholder="Score B">
+                    </div>
+                </div>
+                <div class="twelve wide column">
+                    <div class="ui fluid multiple search selection dropdown playerselect">
+                        <input name="team_b" type="hidden">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Players</div>
+                        <div class="menu">
+                            {% for player in game.players.keys() %}
+                                <div class="item" data-value="{{ player }}">{{ player }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="{{ request.static_url('volley:static/match_submit.js') }}"></script>
