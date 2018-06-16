@@ -1,4 +1,4 @@
-<table class="ui celled striped table">
+<table id="player-table" class="ui celled striped sortable table">
     <thead>
     <tr>
         <th>Player</th>
@@ -7,7 +7,7 @@
         <th>Losses</th>
         <th>σ (Confidence)</th>
         <th>μ (Skill)</th>
-        <th>Rating</th>
+        <th class="sorted descending">Rating</th>
     </tr>
     </thead>
     <tbody>
@@ -24,3 +24,8 @@
     {% endfor %}
     </tbody>
 </table>
+
+<script src="{{ request.static_url('volley:static/jquery.tablesort.min.js') }}"></script>
+<script>
+   $('#player-table').tablesort();
+</script>
