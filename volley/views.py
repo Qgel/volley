@@ -54,7 +54,6 @@ def game_add(context, request):
     game = get_game(context, request.matchdict['game'])
     game.add_match([team_a, team_b], [score_a, score_b])
 
-    print(len(game.matches))
     return Response(status='200 OK')
 
 @view_config(context=Context, route_name="match_delete")
