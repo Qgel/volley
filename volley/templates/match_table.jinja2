@@ -14,9 +14,9 @@
         <tr>
             <td>{{ match.date.strftime("%d.%m.%Y") }}</td>
             <td>{% for p in match.teams[0] %}{{ p.name }}{{ ',' if not loop.last }} {% endfor %}</td>
-            <td>{{ match.score[0] }} - {{ match.score[1] }}</td>
+            <td>{{ match.score[0] }}&nbsp;-&nbsp;{{ match.score[1] }}</td>
             <td>{% for p in match.teams[1] %}{{ p.name }}{{ ',' if not loop.last }} {% endfor %}</td>
-            <td>{{ match.stats['odds_a'] }} : {{ match.stats['odds_b'] }}</td>
+            <td>{{ match.stats['odds_a'] }}&nbsp;:&nbsp;{{ match.stats['odds_b'] }}</td>
             <td class="center aligned">
                 <button class="ui button tiny compact delete-button">Delete</button>
                 <a href="match/delete?id={{ match.uuid }}">
