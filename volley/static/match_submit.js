@@ -4,12 +4,35 @@ $('.ui.dropdown.playerselect').dropdown({
     allowAdditions: true,
     keyboardShortcuts: false,
     onAdd: function (addedValue) {
-      var test  =  $('.ui.dropdown.playerselect .item').filter("[data-value='" + addedValue + "']");
-      test.addClass("filtered");
+        $('.ui.dropdown.playerselect .item')
+            .filter("[data-value='" + addedValue + "']")
+            .filter((n, el) => el.parentElement.parentElement != this)
+            .remove();
     },
     onRemove: function (removedValue) {
-        $('.ui.dropdown.playerselect .item').filter("[data-value='" + removedValue + "']").removeClass("filtered");
+        var test = $('.ui.dropdown.playerselect .menu')
+            .filter((n, el) => el.parentElement != this)
+            .append("<div class='item' data-value='" + removedValue + "'>" + removedValue + "</div>");
+
+        // Refresh UI so styles are reapplied
+        $('.ui.dropdown.playerselect').dropdown('refresh');
     }
+});
+
+// Remove all elements from dropdown which are initially selected in the other dropdown
+$('.ui.dropdown.playerselect').each(function (n) {
+    var other_selected = $('.ui.dropdown.playerselect')
+        .filter((n, el) => el != this)
+        .find("a");
+
+    for (let el of other_selected) {
+        $('.ui.dropdown.playerselect .item')
+            .filter("[data-value='" + el.text + "']")
+            .filter((n, el) => el.parentElement.parentElement == this)
+            .remove()
+    }
+
+    $(this).dropdown('refresh');
 });
 
 // Load initial values for the form
