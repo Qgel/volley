@@ -1,8 +1,8 @@
 {% macro player_entry(p, match) -%}
-    {{ p.name }}&nbsp;({% set rating_change = match.stats['rating_changes'][p.name] %}<span style="color:{% if rating_change < 0.0 %}red{% else %}green{% endif %}">{{ "%+0.2f" % rating_change}}</span>)
+    {{ p.name }}&nbsp;({% set rating_change = match.stats['rating_changes'][p.name] %}<span style="color:{% if rating_change < 0.0 %}red{% else %}green{% endif %}">{{ "%+0.2f" % rating_change }}</span>)
 {%- endmacro %}
 
-<table class="ui celled striped table">
+<table class="ui celled striped table" id="data">
     <thead>
     <tr>
         <th>Date</th>
@@ -17,9 +17,11 @@
     {% for match in matches %}
         <tr>
             <td>{{ match.date.strftime("%d.%m.%Y") }}</td>
-            <td>{% for p in match.teams[0] %}{{ player_entry(p, match) }}{% if not loop.last %} <br> {% endif %} {% endfor %}</td>
+            <td>{% for p in match.teams[0] %}{{ player_entry(p, match) }}{% if not loop.last %} <br>
+            {% endif %} {% endfor %}</td>
             <td>{{ match.score[0] }}&nbsp;-&nbsp;{{ match.score[1] }}</td>
-            <td>{% for p in match.teams[1] %}{{ player_entry(p, match) }}{% if not loop.last %} <br> {% endif %} {% endfor %}</td>
+            <td>{% for p in match.teams[1] %}{{ player_entry(p, match) }}{% if not loop.last %} <br>
+            {% endif %} {% endfor %}</td>
             <td>{{ match.stats['odds_a'] }}&nbsp;:&nbsp;{{ match.stats['odds_b'] }}</td>
             <td class="center aligned">
                 <button class="ui button tiny compact delete-button">Delete</button>
@@ -31,14 +33,20 @@
         </tr>
     {% endfor %}
     </tbody>
+    <tfoot>
+    <tr>
+        <th colspan="6">
+            <div class="ui right floated pagination menu">
+                <a class="icon item" rel="0" id="t-prev">
+                    <i class="left chevron icon"></i>
+                </a>
+                <a class="icon item" rel="0" id="t-next">
+                    <i class="right chevron icon"></i>
+                </a>
+            </div>
+        </th>
+    </tr>
+    </tfoot>
 </table>
 
-<script>
-    $('.delete-button')
-        .on('click', function () {
-            $(this).transition('fade out', function () {
-                $(this).parent().find('.confirm-delete').transition('fade in');
-            });
-        })
-    ;
-</script>
+<script src="{{ request.static_url('volley:static/match_table.js') }}"></script>
