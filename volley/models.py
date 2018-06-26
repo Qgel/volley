@@ -63,7 +63,17 @@ class Match(Persistent):
             'odds_b' : frac.denominator
         }
 
+        player_ratigns = {}
+        for p in self.players():
+            player_ratigns[p.name] = p.exposure()
+        self.stats['rating_changes'] = player_ratigns
+
         self.uuid = uuid4()
+
+    def update_rating_delta(self):
+        player_ratings = self.stats['rating_changes']
+        for p in self.players():
+            player_ratings[p.name] = p.exposure() - player_ratings[p.name]
 
     def win_probability(self, team1, team2):
         delta_mu = sum(r.skill() for r in team1) - sum(r.skill() for r in team2)
@@ -80,7 +90,7 @@ class Match(Persistent):
         return self.score[0] == self.score[1]
 
     def team_b_won(self):
-        return self.score[1] > self.score[0];
+        return self.score[1] > self.score[0]
 
     def participated(self, player):
         return player in self.teams[0] or player in self.teams[1]
@@ -89,6 +99,8 @@ class Match(Persistent):
         return (player in self.teams[0] and self.team_a_won()) \
                or (player in self.teams[1] and self.team_b_won())
 
+    def players(self):
+        return self.teams[0] + self.teams[1]
 
 class Game(Persistent):
     """
@@ -128,6 +140,7 @@ class Game(Persistent):
         self.matches.append(match)
 
         self.update_player_ratings(match)
+        match.update_rating_delta()
 
     def update_player_ratings(self, match):
         ratings_a = [p._rating for p in match.teams[0]]
