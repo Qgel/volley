@@ -2,12 +2,12 @@
     <thead>
     <tr>
         <th>Player</th>
-        <th>Matches</th>
-        <th>Wins</th>
-        <th>Losses</th>
-        <th>σ (Confidence)</th>
-        <th>μ (Skill)</th>
-        <th class="sorted descending">Rating</th>
+        <th class="num" >Matches</th>
+        <th class="num" >Wins</th>
+        <th class="num" >Losses</th>
+        <th class="num" >σ (Confidence)</th>
+        <th class="num" >μ (Skill)</th>
+        <th class="num sorted descending">Rating</th>
     </tr>
     </thead>
     <tbody>
@@ -27,5 +27,9 @@
 
 <script src="{{ request.static_url('volley:static/jquery.tablesort.min.js') }}"></script>
 <script>
-   $('#player-table').tablesort();
+    $('#player-table').tablesort();
+
+    $('thead th.num').data('sortBy', function (th, td, tablesort) {
+        return Number(td.text());
+    });
 </script>
