@@ -56,7 +56,12 @@ class Match(Persistent):
         self.teams = teams
         self.score = score
 
-        a_win_probability =  self.win_probability(teams[0], teams[1])
+        self.uuid = uuid4()
+
+        self.init_stats()
+
+    def init_stats(self):
+        a_win_probability =  self.win_probability(self.teams[0], self.teams[1])
         frac = Fraction(int(round(a_win_probability * 100)), int(round((1-a_win_probability) * 100)))
         self.stats = {
             'odds_a' : frac.numerator,
@@ -67,8 +72,6 @@ class Match(Persistent):
         for p in self.players():
             player_ratigns[p.name] = p.exposure()
         self.stats['rating_changes'] = player_ratigns
-
-        self.uuid = uuid4()
 
     def update_rating_delta(self):
         player_ratings = self.stats['rating_changes']
@@ -151,6 +154,11 @@ class Game(Persistent):
         rank.sort(key = lambda r: r[0], reverse=True)
         rank_indices = list(zip(*rank))[1]
 
+        # Check for Draw
+        # TODO: make this generic for more than 2 teams
+        if match.score[0] == match.score[1]:
+            rank_indices = [0, 0]
+
         # Calculate new Ratings using trueskill algorithm
         new_ratings = trueskill.rate([ratings_a, ratings_b], ranks=rank_indices)
 
@@ -169,7 +177,9 @@ class Game(Persistent):
             player.matches.clear()
 
         for match in self.matches:
+            match.init_stats()
             self.update_player_ratings(match)
+            match.update_rating_delta()
 
 
     def get_player(self, name):
