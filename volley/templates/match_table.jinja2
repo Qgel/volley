@@ -24,9 +24,9 @@
             {% endif %} {% endfor %}</td>
             <td>{{ match.stats['odds_a'] }}&nbsp;:&nbsp;{{ match.stats['odds_b'] }}</td>
             <td class="center aligned">
-                <button class="ui button tiny compact delete-button">Delete</button>
-                <a href="match/delete?id={{ match.uuid }}">
-                    <button class="negative ui button tiny compact confirm-delete transition hidden">Do It!</button>
+                <button class="ui button tiny compact delete-button" tabindex="-1">Delete</button>
+                <a href="match/delete?id={{ match.uuid }}" tabindex="-1">
+                    <button class="negative ui button tiny compact confirm-delete transition hidden" tabindex="-1">Do It!</button>
                 </a>
                 </div>
             </td>
