@@ -3,6 +3,7 @@
 $('.ui.dropdown.playerselect').dropdown({
     allowAdditions: true,
     keyboardShortcuts: false,
+    allowTab: false,
     onAdd: function (addedValue) {
         $('.ui.dropdown.playerselect .item')
             .filter("[data-value='" + addedValue + "']")
@@ -18,6 +19,10 @@ $('.ui.dropdown.playerselect').dropdown({
         $('.ui.dropdown.playerselect').dropdown('refresh');
     }
 });
+
+// Set tabindex on the search elements manually, as semantic-ui can't be convinced to do it correctly
+$('#dropdown-team-a .search').attr('tabindex', '1');
+$('#dropdown-team-b .search').attr('tabindex', '4');
 
 // Remove all elements from dropdown which are initially selected in the other dropdown
 $('.ui.dropdown.playerselect').each(function (n) {

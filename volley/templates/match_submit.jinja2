@@ -14,7 +14,7 @@
 
             <div class="ui grid">
                 <div class="twelve wide column">
-                    <div class="ui fluid multiple search selection dropdown playerselect">
+                    <div id="dropdown-team-a" class="ui fluid multiple search selection dropdown playerselect">
                         <input name="team_a" type="hidden">
                         <i class="dropdown icon"></i>
                         <div class="default text">Players</div>
@@ -27,24 +27,24 @@
                 </div>
                 <div class="four wide column">
                     <div class="ui input focus fluid">
-                        <input name="score_a" placeholder="Score A">
+                        <input name="score_a" placeholder="Score A" tabindex="2">
                     </div>
                 </div>
             </div>
         </div>
         <div class="two wide column bottom aligned">
-            <button type="submit" class="ui submit button">VS.</button>
+            <button type="submit" class="ui submit button" tabindex="5">VS.</button>
         </div>
         <div class="seven wide column">
             <div class="ui sub header right aligned">Team B</div>
             <div class="ui grid">
                 <div class="four wide column">
                     <div class="ui input focus fluid">
-                        <input name="score_b" placeholder="Score B">
+                        <input name="score_b" placeholder="Score B" tabindex="3">
                     </div>
                 </div>
                 <div class="twelve wide column">
-                    <div class="ui fluid multiple search selection dropdown playerselect">
+                    <div id="dropdown-team-b" class="ui fluid multiple search selection dropdown playerselect">
                         <input name="team_b" type="hidden">
                         <i class="dropdown icon"></i>
                         <div class="default text">Players</div>
