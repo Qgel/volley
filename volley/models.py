@@ -191,12 +191,31 @@ class Game(Persistent):
 class Context(PersistentMapping):
     __parent__ = __name__ = None
 
-    def __init__(self):
-        self.games = PersistentMapping()
+    # Bump this anytime the model changes, and add migration code to upgrade_db() so old databases are updated on load
+    db_version = 1
 
-        # Games currently supported
+    def __init__(self):
+        # The current version of this database instance. Used to determine if a database upgrade is necessary
+        self.db_version = Context.db_version
+
+        # Add default game pages
+        self.games = PersistentMapping()
         self.games["volleyball"] = Game('Volleyball')
         self.games['kicker'] = Game('Kicker')
+
+
+def upgrade_db(context):
+    """" Upgrade the database to a newer version if neccessary. If any persistent objects' structure changes, the
+         db_version of the Context class should be bumped, and migration code which appropriately modifies the 'old'
+         database objects to fit the 'new' version should be added at the very bottom of the function like so:
+
+         if context.db_version == <old version>:
+            <Upgrade code>
+            context.db_version = <new version>
+    """
+
+    if Context.db_version == context.db_version:
+        return
 
 def appmaker(zodb_root):
     if not 'app_root' in zodb_root:
@@ -204,4 +223,7 @@ def appmaker(zodb_root):
         zodb_root['app_root'] = app_root
         import transaction
         transaction.commit()
-    return zodb_root['app_root']
+
+    ctx = zodb_root['app_root']
+    upgrade_db(ctx)
+    return ctx
