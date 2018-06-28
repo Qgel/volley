@@ -13,6 +13,7 @@ requires = [
     'pyramid_debugtoolbar',
     'pyramid_tm',
     'pyramid_zodbconn',
+    'pyramid_jinja2',
     'transaction',
     'ZODB3',
     'waitress',
