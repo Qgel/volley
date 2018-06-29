@@ -1,13 +1,13 @@
 <table id="player-table" class="ui celled striped sortable table">
     <thead>
     <tr>
-        <th>Player</th>
-        <th class="num" >Matches</th>
-        <th class="num" >Wins</th>
-        <th class="num" >Losses</th>
-        <th class="num" >σ (Confidence)</th>
-        <th class="num" >μ (Skill)</th>
-        <th class="num sorted descending">Rating</th>
+        <th data-title="Player" data-content="The name of the player">Player</th>
+        <th class="num" data-title="Games" data-content="The total number of games">#</th>
+        <th class="num" data-title="Wins" data-content="The total number of wins">W</th>
+        <th class="num" data-title="Losses" data-content="The total number of losses">L</th>
+        <th class="num" data-title="Confidence" data-content="The standard deviation of the skill value">σ</th>
+        <th class="num" data-title="Skill" data-content="The expected skill of the player based on all previous matches">μ</th>
+        <th class="num sorted descending" data-title="Rating" data-content="A Rating for the player based on both μ and σ">Rating</th>
     </tr>
     </thead>
     <tbody>
@@ -32,4 +32,8 @@
     $('thead th.num').data('sortBy', function (th, td, tablesort) {
         return Number(td.text());
     });
+
+    $('#player-table th')
+        .popup()
+    ;
 </script>
