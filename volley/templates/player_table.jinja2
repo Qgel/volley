@@ -8,9 +8,11 @@
         <th class="num" data-title="Win Ratio" data-content="The Ratio of Wins to Losses">W/L</th>
         <th class="num" data-title="Confidence" data-content="The standard deviation of the skill value">σ</th>
         <th class="num" data-title="Skill"
-            data-content="The expected skill of the player based on all previous matches">μ</th>
+            data-content="The expected skill of the player based on all previous matches">μ
+        </th>
         <th class="num sorted descending" data-title="Rating"
-            data-content="A Rating for the player based on both μ and σ"><span style="font-size:0.8rem">Rating</span></th>
+            data-content="A Rating for the player based on both μ and σ"><span style="font-size:0.8rem">Rating</span>
+        </th>
         <th data-title="95% Confidence Interval"
             data-content="If the bar does not overlap with that of another player, we are 95% sure that the one with higher skill is actually the better player.">
             Interval
@@ -19,16 +21,16 @@
     </thead>
     <tbody>
     {% for p in players %}
-        <!-- <tr style="opacity:{{ "%0.2f" % (1 - (p.confidence() - 2) / 8) }}"> -->
-        <td>{{ p.name }}</td>
-        <td>{{ p.matches|length }}</td>
-        <td>{{ p.wins()|length }}</td>
-        <td>{{ p.losses()|length }}</td>
-        <td>{% if p.losses() %}{{ "%0.1f" % ((p.wins()|length)/(p.losses()|length)) }}{% else %}∞{% endif %}</td>
-        <td>{{ "%0.1f" % p.confidence() }}</td>
-        <td>{{ "%0.1f" % p.skill() }}</td>
-        <td>{{ "%0.1f" % p.exposure() }}</td>
-        <td class="skillgraph"></td>
+        <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.matches|length }}</td>
+            <td>{{ p.wins()|length }}</td>
+            <td>{{ p.losses()|length }}</td>
+            <td>{% if p.losses() %}{{ "%0.1f" % ((p.wins()|length)/(p.losses()|length)) }}{% else %}∞{% endif %}</td>
+            <td>{{ "%0.1f" % p.confidence() }}</td>
+            <td>{{ "%0.1f" % p.skill() }}</td>
+            <td>{{ "%0.1f" % p.exposure() }}</td>
+            <td class="skillgraph"></td>
         </tr>
     {% endfor %}
     </tbody>
