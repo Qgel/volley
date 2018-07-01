@@ -68,7 +68,7 @@ class Match(Persistent):
 
     def init_stats(self):
         a_win_probability = Match.win_probability(self.teams[0], self.teams[1])
-        frac = Fraction(int(round(a_win_probability * 100)), int(round((1 - a_win_probability) * 100)))
+        frac = Fraction(int(round(a_win_probability * 10)), int(round((1 - a_win_probability) * 10)))
         self.stats = {
             'odds_a': frac.numerator,
             'odds_b': frac.denominator
@@ -210,7 +210,7 @@ class Context(PersistentMapping):
     __parent__ = __name__ = None
 
     # Bump this anytime the model changes, and add migration code to upgrade_db() so old databases are updated on load
-    db_version = 1
+    db_version = 2
 
     def __init__(self):
         # The current version of this database instance. Used to determine if a database upgrade is necessary
@@ -234,6 +234,12 @@ def upgrade_db(context):
 
     if Context.db_version == context.db_version:
         return
+
+    # Odds calculation changed, recalculate all rating entries.
+    if(context.db_version == 1):
+        for g in context.games.values():
+            g.recalculate_ratings()
+        context.db_version = 2
 
 
 def appmaker(zodb_root):

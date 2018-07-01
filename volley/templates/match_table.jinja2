@@ -1,5 +1,5 @@
 {% macro player_entry(p, match) -%}
-    {{ p.name }}&nbsp;({% set rating_change = match.stats['rating_changes'][p.name] %}<span style="color:{% if rating_change < 0.0 %}red{% else %}green{% endif %}">{{ "%+0.2f" % rating_change }}</span>)
+    {{ p.name }}&nbsp;<span style="font-size:0.7rem">({% set rating_change = match.stats['rating_changes'][p.name] %}<span style="color:{% if rating_change < 0.0 %}red{% else %}green{% endif %}">{{ "%+0.2f" % rating_change }}</span>)</span>
 {%- endmacro %}
 
 <table class="ui celled striped table" id="data">
@@ -16,7 +16,7 @@
     <tbody>
     {% for match in matches %}
         <tr>
-            <td>{{ match.date.strftime("%d.%m.%Y") }}</td>
+            <td>{{ match.date.strftime("%d.%m.%y") }}</td>
             <td>{% for p in match.teams[0] %}{{ player_entry(p, match) }}{% if not loop.last %} <br>
             {% endif %} {% endfor %}</td>
             <td>{{ match.score[0] }}&nbsp;-&nbsp;{{ match.score[1] }}</td>
