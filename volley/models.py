@@ -10,12 +10,14 @@ from fractions import Fraction
 
 import trueskill
 
+
 class Player(Persistent):
     """
-    A Player plays matches. He is local two a Game, so a single physical Person could be two distinct 'Player' objects.
+    A Player plays matches. He is local to a Game, so a single physical Person could be two distinct 'Player' objects.
     This is because the Player has a skill rating associated with it, which only makes sense for
     his skill in a single game.
     """
+
     def __init__(self, name):
         self.name = name
         # Trueskill Rating for this player
@@ -26,6 +28,9 @@ class Player(Persistent):
     def set_rating(self, rating):
         self._rating = rating
         self._p_changed = True
+
+    def get_rating(self):
+        return self._rating
 
     def reset_rating(self):
         self.set_rating(trueskill.Rating())
@@ -50,6 +55,7 @@ class Match(Persistent):
     """
     A Match is composed of two teams and a score/winner of the match
     """
+
     def __init__(self, teams, score):
         self.date = datetime.now()
 
@@ -61,11 +67,11 @@ class Match(Persistent):
         self.init_stats()
 
     def init_stats(self):
-        a_win_probability =  self.win_probability(self.teams[0], self.teams[1])
-        frac = Fraction(int(round(a_win_probability * 100)), int(round((1-a_win_probability) * 100)))
+        a_win_probability = Match.win_probability(self.teams[0], self.teams[1])
+        frac = Fraction(int(round(a_win_probability * 100)), int(round((1 - a_win_probability) * 100)))
         self.stats = {
-            'odds_a' : frac.numerator,
-            'odds_b' : frac.denominator
+            'odds_a': frac.numerator,
+            'odds_b': frac.denominator
         }
 
         player_ratigns = {}
@@ -78,7 +84,12 @@ class Match(Persistent):
         for p in self.players():
             player_ratings[p.name] = p.exposure() - player_ratings[p.name]
 
-    def win_probability(self, team1, team2):
+    @staticmethod
+    def win_probability(team1, team2):
+        """"
+        Calculate the win probability of team1 over team2 given the skill ratings of
+        all the players in the teams.
+        """
         delta_mu = sum(r.skill() for r in team1) - sum(r.skill() for r in team2)
         sum_sigma = sum(r.confidence() ** 2 for r in itertools.chain(team1, team2))
         size = len(team1) + len(team2)
@@ -105,11 +116,13 @@ class Match(Persistent):
     def players(self):
         return self.teams[0] + self.teams[1]
 
+
 class Game(Persistent):
     """
     A Game aggregates the players and matches that are part of a competition. For example, a Game could be 'Football'
     or 'Hockey'
     """
+
     def __init__(self, name):
         self.name = name
         # Player name -> Player
@@ -146,12 +159,12 @@ class Game(Persistent):
         match.update_rating_delta()
 
     def update_player_ratings(self, match):
-        ratings_a = [p._rating for p in match.teams[0]]
-        ratings_b = [p._rating for p in match.teams[1]]
+        ratings_a = [p.get_rating() for p in match.teams[0]]
+        ratings_b = [p.get_rating() for p in match.teams[1]]
 
         # Sort by score and get rank indices
         rank = list(zip(match.score, range(len(match.score))))
-        rank.sort(key = lambda r: r[0], reverse=True)
+        rank.sort(key=lambda r: r[0], reverse=True)
         rank_indices = list(zip(*rank))[1]
 
         # Check for Draw
@@ -162,14 +175,13 @@ class Game(Persistent):
         # Calculate new Ratings using trueskill algorithm
         new_ratings = trueskill.rate([ratings_a, ratings_b], ranks=rank_indices)
 
-        for r,p in zip(new_ratings[0], match.teams[0]):
+        for r, p in zip(new_ratings[0], match.teams[0]):
             p.set_rating(r)
             p.matches.append(match)
 
         for r, p in zip(new_ratings[1], match.teams[1]):
             p.set_rating(r)
             p.matches.append(match)
-
 
     def recalculate_ratings(self):
         for player in self.players.values():
@@ -181,12 +193,12 @@ class Game(Persistent):
             self.update_player_ratings(match)
             match.update_rating_delta()
 
-
     def get_player(self, name):
         if not name in self.players:
             self.players[name] = Player(name)
 
         return self.players[name]
+
 
 class Context(PersistentMapping):
     __parent__ = __name__ = None
@@ -216,6 +228,7 @@ def upgrade_db(context):
 
     if Context.db_version == context.db_version:
         return
+
 
 def appmaker(zodb_root):
     if not 'app_root' in zodb_root:
