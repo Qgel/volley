@@ -68,7 +68,13 @@ def matchmaking_view(context, request):
 
         pairings.sort(key=lambda p: p['quality'], reverse=True)
 
-    return {'game': game, 'all_games' : all_games, 'pairings' : pairings, 'players' : players }
+    # Group painings by thresholds for display
+    pairings_good = [p for p in pairings if p['quality'] > 0.4]
+    pairings_ok = [p for p in pairings if p['quality'] >= 0.1 and not p in pairings_good]
+    pairings_bad = [p for p in pairings if not p in pairings_good and not p in pairings_ok]
+
+    return {'game': game, 'all_games' : all_games, 'players' : players,
+            'pairings_good' : pairings_good, 'pairings_ok' : pairings_ok, 'pairings_bad' : pairings_bad}
 
 @view_config(context=Context, route_name="match_add")
 def game_add(context, request):
