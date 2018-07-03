@@ -66,9 +66,12 @@ def game_add(context, request):
     except ValueError:
         return Response(body='Invalid score value!', status='406 Not Acceptable')
 
-
     if score_a < 0 or score_b < 0:
         return Response(body='Score may not be negative!', status='406 Not Acceptable')
+
+    for p in (team_a + team_b):
+        if p == "":
+            return Response(body='Player name may not be empty!', status='406 Not Acceptable')
 
     # Check if players on each team are unique
     for player_a in team_a:
