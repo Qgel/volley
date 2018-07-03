@@ -48,11 +48,23 @@ def matchmaking_view(context, request):
         player_names = [escape(s) for s in request.params['players'].split(',')]
         players = [game.players[p] for p in player_names if p in game.players]
 
-        for split in range(1, int(len(players)/2)+1):
+        def make_pairing(t1):
+            t2 = [p for p in players if p not in t1]
+            quality = Match.draw_probability(t1, t2)
+            return {'team1': t1, 'team2': t2, 'quality': quality}
+
+        # Calculate match quality for all team compositions
+        for split in range(1, int(len(players)/2)):
             for t1 in combinations(players, split):
-                t2 = [p for p in players if p not in t1]
-                quality = Match.draw_probability(t1, t2)
-                pairings.append({'team1' : t1, 'team2' : t2, 'quality' : quality})
+                pairings.append(make_pairing(t1))
+
+        # Half-Half point with even players needs special handling, because otherwise we will generate
+        # The same teams multiple times (e.g. AB vs CD and CD vs AB)
+        halfside = list(combinations(players, int(len(players)/2)))
+        if len(players) % 2 == 0:
+            halfside = halfside[:int(len(halfside)/2)]
+        for t1 in halfside:
+            pairings.append(make_pairing(t1))
 
         pairings.sort(key=lambda p: p['quality'], reverse=True)
 
