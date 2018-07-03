@@ -4,7 +4,10 @@ from pyramid.response import Response
 
 import pyramid.httpexceptions as exceptions
 
-from .models import Context
+from itertools import combinations
+
+from .models import Context, Match
+
 
 def get_game(context, name):
     """
@@ -30,6 +33,27 @@ def game_view(context, request):
     players = sorted(game.players.values(), key = lambda p: p.exposure(), reverse=True)
     all_games = [g.name for g in context.games.values()]
     return {'game': game, 'matches' : matches, 'players' : players, 'all_games' : all_games}
+
+@view_config(context=Context, renderer='templates/matchmaking.jinja2', route_name="matchmaking")
+def matchmaking_view(context, request):
+    game = get_game(context, request.matchdict['game'])
+    all_games = [g.name for g in context.games.values()]
+
+    pairings = []
+    players = []
+    if 'players' in request.params:
+        player_names = [escape(s) for s in request.params['players'].split(',')]
+        players = [game.players[p] for p in player_names if p in game.players]
+
+        for split in range(1, int(len(players)/2)+1):
+            for t1 in combinations(players, split):
+                t2 = [p for p in players if p not in t1]
+                quality = Match.draw_probability(t1, t2)
+                pairings.append({'team1' : t1, 'team2' : t2, 'quality' : quality})
+
+        pairings.sort(key=lambda p: p['quality'], reverse=True)
+
+    return {'game': game, 'all_games' : all_games, 'pairings' : pairings, 'players' : players }
 
 @view_config(context=Context, route_name="match_add")
 def game_add(context, request):

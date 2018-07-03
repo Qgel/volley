@@ -97,6 +97,12 @@ class Match(Persistent):
         ts = trueskill.global_env()
         return ts.cdf(delta_mu / denom)
 
+    @staticmethod
+    def draw_probability(team1, team2):
+        r1 = [p.get_rating() for p in team1]
+        r2 = [p.get_rating() for p in team2]
+        return trueskill.quality([r1, r2])
+
     def team_a_won(self):
         return self.score[0] > self.score[1]
 

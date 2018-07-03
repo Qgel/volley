@@ -2,11 +2,11 @@
 <html>
 <head>
     {% block head %}
-    <meta charset="utf-8"/>
-    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
-    <title>Volley | Game Tracker</title>
-    <link rel="shortcut icon" href="{{ request.static_url('volley:static/volley-16x16.png') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.css">
+        <meta charset="utf-8"/>
+        <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+        <title>Volley | Game Tracker</title>
+        <link rel="shortcut icon" href="{{ request.static_url('volley:static/volley-16x16.png') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.css">
     {% endblock %}
 </head>
 <body>
@@ -29,11 +29,30 @@
         </a>
 
         {% for g in all_games %}
-            <a class="{{ "active" if game.name == g }} item" href="/{{ g|lower }}/">{{ g }}</a>
+            <a class="{{ "active" if game.name == g }} item gamelink" href="/{{ g|lower }}/">{{ g }}</a>
+            <div class="ui flowing popup {{ g }}">
+                <div class="ui link list">
+                    <a class="item" href="/{{ g|lower }}/" >Overview</a>
+                    <a class="item" href="/{{ g|lower }}/matchmaking/">Matchmaking</a>
+                </div>
+            </div>
         {% endfor %}
 
     </div>
 </div>
+
+<script>
+    $('.menu a.item.gamelink').each(function(n, el) {
+        $(el).popup({
+            popup: $('.ui.flowing.popup.'+el.innerText),
+            inline: true,
+            hoverable: true,
+            position: 'bottom left',
+            lastResort: true,
+        });
+    });
+</script>
+
 
 {% block body %}
 {% endblock %}

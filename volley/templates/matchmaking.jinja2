@@ -1,0 +1,71 @@
+{% extends 'base.jinja2' %}
+
+{% block body %}
+    <div class="ui main center aligned container">
+        <h1 class="ui huge header">
+            {{ game.name }} Matchmaking
+        </h1>
+
+    <form class="ui form" id="addmatch" action="">
+        <div class="ui grid">
+            <div class="fourteen wide column">
+                <div id="dropdown-players" class="ui fluid multiple search selection dropdown playerselect">
+                    <input name="players" type="hidden">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Players</div>
+                    <div class="menu">
+                        {% for player in game.players.keys() %}
+                            <div class="item selected" data-value="{{ player }}">{{ player }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="two wide column">
+                <button type="submit" class="ui submit button" tabindex="5">Go!</button>
+            </div>
+        </div>
+    </form>
+
+    </div>
+
+    {% if pairings %}
+    <div class="ui center aligned container content">
+        <table id="pairings-table" class="ui celled striped sortable table">
+            <thead>
+            <tr>
+                <th>Team 1</th>
+                <th>Quality</th>
+                <th>Team 2</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for pairing in pairings %}
+                <tr>
+                    <td>{% for p in pairing['team1'] %}{{ p.name }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+                    </td>
+                    <td>{{ "%.1f%%" % (pairing['quality'] * 100) }}</td>
+                    <td>{% for p in pairing['team2'] %}{{ p.name }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <style type="text/css">
+        .main.container {
+            margin-top: 7em;
+        }
+
+        .container.content {
+            margin-top: 3em;
+        }
+    </style>
+
+    <script>
+    $('.ui.dropdown.playerselect').dropdown();
+    $('.ui.dropdown.playerselect').dropdown('set exactly', [{% for p in players %}'{{ p.name }}'{% if not loop.last %},{% endif %}{% endfor %}])
+    </script>
+
+{% endblock %}
