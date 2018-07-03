@@ -1,4 +1,4 @@
-from pyramid.view import view_config
+from pyramid.view import view_config, notfound_view_config
 from pyramid.compat import escape
 from pyramid.response import Response
 
@@ -8,6 +8,9 @@ from itertools import combinations
 
 from .models import Context, Match
 
+@notfound_view_config(append_slash=True)
+def notfound(request):
+    return exceptions.HTTPNotFound()
 
 def get_game(context, name):
     """
