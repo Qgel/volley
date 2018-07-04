@@ -5,6 +5,7 @@
         <th class="num" data-title="Games" data-content="The total number of games">#</th>
         <th class="num" data-title="Wins" data-content="The total number of wins">W</th>
         <th class="num" data-title="Losses" data-content="The total number of losses">L</th>
+        <th class="num" data-title="Win Ratio" data-content="The Ratio of Wins to Losses">W/L</th>
         <th class="num" data-title="Confidence" data-content="The standard deviation of the skill value">σ</th>
         <th class="num" data-title="Skill" data-content="The expected skill of the player based on all previous matches">μ</th>
         <th class="num sorted descending" data-title="Rating" data-content="A Rating for the player based on both μ and σ">Rating</th>
@@ -17,9 +18,10 @@
             <td>{{ p.matches|length }}</td>
             <td>{{ p.wins()|length }}</td>
             <td>{{ p.losses()|length }}</td>
-            <td>{{ "%0.2f" % p.confidence() }}</td>
-            <td>{{ "%0.2f" % p.skill() }}</td>
-            <td>{{ "%0.2f" % p.exposure() }}</td>
+            <td>{% if p.losses() %}{{ "%0.1f" % ((p.wins()|length)/(p.losses()|length)) }}{% else %}∞{% endif %}</td>
+            <td>{{ "%0.1f" % p.confidence() }}</td>
+            <td>{{ "%0.1f" % p.skill() }}</td>
+            <td>{{ "%0.1f" % p.exposure() }}</td>
         </tr>
     {% endfor %}
     </tbody>
