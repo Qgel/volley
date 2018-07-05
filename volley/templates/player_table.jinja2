@@ -13,7 +13,7 @@
     </thead>
     <tbody>
     {% for p in players %}
-        <tr>
+        <tr style="opacity:{{ "%0.2f" % (1 - (p.confidence() - 2) / 8) }}">
             <td>{{ p.name }}</td>
             <td>{{ p.matches|length }}</td>
             <td>{{ p.wins()|length }}</td>
