@@ -6,10 +6,6 @@
         <th class="num" data-title="Wins" data-content="The total number of wins">W</th>
         <th class="num" data-title="Losses" data-content="The total number of losses">L</th>
         <th class="num" data-title="Win Ratio" data-content="The Ratio of Wins to Losses">W/L</th>
-        <th class="num" data-title="Confidence" data-content="The standard deviation of the skill value">σ</th>
-        <th class="num" data-title="Skill"
-            data-content="The expected skill of the player based on all previous matches">μ
-        </th>
         <th class="num sorted descending" data-title="Rating"
             data-content="A Rating for the player based on both μ and σ"><span style="font-size:0.8rem">Rating</span>
         </th>
@@ -27,8 +23,6 @@
             <td>{{ p.wins()|length }}</td>
             <td>{{ p.losses()|length }}</td>
             <td>{% if p.losses() %}{{ "%0.1f" % ((p.wins()|length)/(p.losses()|length)) }}{% else %}∞{% endif %}</td>
-            <td class="confidence">{{ "%0.1f" % p.confidence() }}</td>
-            <td class="skill">{{ "%0.1f" % p.skill() }}</td>
             <td>{{ "%0.1f" % p.exposure() }}</td>
             <td class="skillgraph nostretch"></td>
         </tr>
@@ -39,6 +33,14 @@
 <script src="{{ request.static_url('volley:static/jquery.tablesort.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@5.5.0/dist/d3.min.js"></script>
 <script src="{{ request.static_url('volley:static/player_table.js') }}"></script>
+<script>
+    var data = [
+        {% for p in players %}
+            {mu: {{"%0.1f" % p.skill()}}, sigma: {{ "%0.1f" % p.confidence() }}},
+        {% endfor %}
+    ];
+    make_confidence_bars(data);
+</script>
 
 <style type="text/css">
     svg line {
