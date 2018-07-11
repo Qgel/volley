@@ -14,13 +14,12 @@
     <h1 class="ui huge header">
         History
     </h1>
-    <div class="ui massive grid">
-        <div class="eight wide column">
-            {% include 'match_table.jinja2' %}
-        </div>
-
-        <div class="eight wide column">
+    <div class="ui massive stacking grid computer reversed">
+        <div class="eight wide large screen sixteen wide column">
             {% include 'player_table.jinja2' %}
+        </div>
+        <div class="eight wide large screen sixteen wide column">
+            {% include 'match_table.jinja2' %}
         </div>
     </div>
 </div>

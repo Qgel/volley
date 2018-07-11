@@ -2,7 +2,7 @@
     {{ p.name }}&nbsp;<span style="font-size:0.7rem">({% set rating_change = match.stats['rating_changes'][p.name] %}<span style="color:{% if rating_change < 0.0 %}red{% else %}green{% endif %}">{{ "%+0.2f" % rating_change }}</span>)</span>
 {%- endmacro %}
 
-<table class="ui celled striped table" id="data">
+<table class="ui celled striped unstackable table" id="data">
     <thead>
     <tr>
         <th>Date</th>

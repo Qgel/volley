@@ -1,4 +1,4 @@
-<table id="player-table" class="ui celled striped sortable table">
+<table id="player-table" class="ui celled striped sortable unstackable table">
     <thead>
     <tr>
         <th data-title="Player" data-content="The name of the player">Player</th>
@@ -30,7 +30,7 @@
             <td class="confidence">{{ "%0.1f" % p.confidence() }}</td>
             <td class="skill">{{ "%0.1f" % p.skill() }}</td>
             <td>{{ "%0.1f" % p.exposure() }}</td>
-            <td class="skillgraph"></td>
+            <td class="skillgraph nostretch"></td>
         </tr>
     {% endfor %}
     </tbody>
@@ -53,5 +53,10 @@
     svg .highlight-overlay {
         fill-opacity: 0.2;
         pointer-events: none;
+    }
+
+    td.nostretch {
+        width: 1%;
+        white-space: nowrap;
     }
 </style>
