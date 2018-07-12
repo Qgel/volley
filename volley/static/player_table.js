@@ -11,18 +11,6 @@ $('#player-table th')
 // ======== Confidence bars =========
 make_confidence_bars = function (data, confidence_level = 2, width = 120, height = 10) {
 
-// Collect data from table
-    /*var data = $('#player-table tbody tr').map(function (i, e) {
-        return {
-            sigma: Number($(e).find('.confidence').text()),
-            mu: Number($(e).find('.skill').text())
-        }
-    });
-    */
-
-        w = $('.skillgraph').first().width();
-    console.log(w);
-
     let domain_min = d3.min(data, function (d, i) {
         return d.mu - confidence_level * d.sigma;
     });
