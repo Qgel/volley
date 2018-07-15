@@ -1,0 +1,97 @@
+{% extends 'base.jinja2' %}
+
+{% block body %}
+
+    <div class="ui main center aligned container grid">
+        <div class="sixteen wide column">
+            <h1 class="ui huge header">
+                {{ player.name }}
+            </h1>
+        </div>
+
+        <div class="sixteen wide column">
+            <div class="ui six statistics">
+                <div class="statistic">
+                    <div class="value">
+                        {{ player.matches | length }}
+                    </div>
+                    <div class="label">
+                        Games
+                    </div>
+                </div>
+                <div class="statistic">
+                    <div class="value">
+                        {{ player.wins() | length }}
+                    </div>
+                    <div class="label">
+                        Wins
+                    </div>
+                </div>
+                <div class="statistic">
+                    <div class="value">
+                        {% if player.matches %}
+                            {% set win_rate = "%1.0f" % (((player.wins()|length)/(player.matches|length))*100) %}
+                        {% else %}
+                            {% set win_rate = "?" %}
+                        {% endif %}
+
+                        {{ win_rate }}%
+                    </div>
+                    <div class="label">
+                        Win Chance
+                    </div>
+                </div>
+                <div class="statistic">
+                    <div class="value">
+                        {{ num_played_opponents }} / {{ connectivity | length }}
+                    </div>
+                    <div class="label">
+                        Players played
+                    </div>
+                </div>
+                <div class="statistic">
+                    <div class="value">
+                        {{ "%0.1f" % player.exposure() }}
+                    </div>
+                    <div class="label">
+                        Rating
+                    </div>
+                </div>
+                <div class="statistic">
+                    <div class="value">
+                        <i class="small {% if player_rank == 1 %}star{% elif player_rank == 2 %}star outline{% else %}certificate{% endif %} icon"></i> {{ player_rank }}
+                    </div>
+                    <div class="label">
+                        Rank
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="eight wide column">
+            {% set matches = player.matches %}
+            {% include 'match_table.jinja2' %}
+        </div>
+        <div class="eight wide column" id="wingraph">
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@5.5.0/dist/d3.min.js"></script>
+    <script src="{{ request.static_url('volley:static/winchance_player_graph.js') }}"></script>
+    <script>
+        data = [
+            {% for c in connectivity if not connectivity[c]['num_played_together'] == 0 %}
+                {
+                    score: {{ "%0.1f" % (connectivity[c]['win_rate'] * 100)}},
+                    width: {{ connectivity[c]['num_played_together'] }},
+                    name: "{{ c }}"
+                },
+            {% endfor %}
+        ];
+        winchance_player_graph("#wingraph", data, {{ win_rate }})
+    </script>
+
+    <link rel="stylesheet" href="{{ request.static_url('volley:static/winchance_player_graph.css') }}">
+
+{% endblock %}

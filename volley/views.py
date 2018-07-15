@@ -76,6 +76,40 @@ def matchmaking_view(context, request):
     return {'game': game, 'all_games' : all_games, 'players' : players,
             'pairings_good' : pairings_good, 'pairings_ok' : pairings_ok, 'pairings_bad' : pairings_bad}
 
+@view_config(context=Context, renderer='templates/playerpage.jinja2', route_name="playerpage")
+def playerpage_view(context, request):
+    game = get_game(context, request.matchdict['game'])
+    all_games = [g.name for g in context.games.values()]
+
+    player_name = request.matchdict['player']
+    if not player_name in game.players:
+        raise exceptions.HTTPNotFound()
+    player = game.players[player_name]
+
+    players = sorted(game.players.values(), key=lambda p: p.exposure(), reverse=True)
+    player_rank = players.index(player) + 1
+
+    connectivity = {}
+    for p in players:
+        team_matches = [m for m in player.matches if (p in m.teams[0] and player in m.teams[0]) or (p in m.teams[1] and player in m.teams[1])]
+
+        # For ourselves, look at solo games
+        if p == player:
+            team_matches = [m for m in player.matches if (p in m.teams[0] and len(m.teams[0]) == 1) or (p in m.teams[1] and len(m.teams[1]) == 1)]
+
+        num_won = len([m for m in team_matches if m.won(player)])
+        win_rate = (num_won / len(team_matches)) if len(team_matches) > 0 else 0.0
+        stats = {'num_played_together' : len(team_matches),
+                 'num_won' : num_won,
+                 'win_rate' : win_rate}
+
+        connectivity[p.name] = stats
+
+    num_played_opponents = sum([1 for (_,v) in connectivity.items() if v['num_played_together'] > 0])
+
+    return {'game': game, 'all_games' : all_games, 'player' : player, 'connectivity' : connectivity,
+           'player_rank' : player_rank, 'num_played_opponents' : num_played_opponents}
+
 @view_config(context=Context, route_name="match_add")
 def game_add(context, request):
     team_a = [escape(s) for s in request.params['team_a'].split(',')]

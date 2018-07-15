@@ -14,6 +14,7 @@ def main(global_config, **settings):
         config.add_route('index', '/')
         config.add_route('game', '/{game}/')
         config.add_route('matchmaking', '/{game}/matchmaking/')
+        config.add_route('playerpage', '/{game}/player/{player}/')
         config.add_route('match_add', '/{game}/match/add')
         config.add_route('match_delete', '/{game}/match/delete')
         config.scan()

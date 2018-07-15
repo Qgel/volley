@@ -1,0 +1,35 @@
+#wingraph {
+    font: 10px sans-serif;
+}
+
+#wingraph .axis path,
+#wingraph .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+#wingraph .bar {
+    fill: black;
+}
+
+#wingraph .solidArc:hover {
+    fill: #101D22;
+}
+
+#wingraph .solidArc {
+    -moz-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+}
+
+#wingraph .x.axis path {
+    display: none;
+}
+
+#wingraph .aster-score {
+    line-height: 1;
+    font-weight: bold;
+    font-size: 200%;
+}
