@@ -1,0 +1,41 @@
+svg {
+    font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    fill: #000;
+}
+
+.axis .tick line {
+    stroke: rgba(0, 0, 0, 0.1);
+}
+
+.area {
+    stroke-width: 1;
+    fill: rgba(77, 154, 180, 0.7);
+    stroke: rgba(84, 174, 199, 0.7);
+}
+
+.match-indicator.game-won {
+    fill: #73cb74;
+}
+
+.match-indicator {
+    fill: #E1514B;
+    stroke: black;
+}
+
+.skill-line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 3;
+}
+
+

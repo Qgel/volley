@@ -92,10 +92,11 @@ def playerpage_view(context, request):
     connectivity = {}
     for p in players:
         team_matches = [m for m in player.matches if (p in m.teams[0] and player in m.teams[0]) or (p in m.teams[1] and player in m.teams[1])]
-
+        name = p.name
         # For ourselves, look at solo games
         if p == player:
             team_matches = [m for m in player.matches if (p in m.teams[0] and len(m.teams[0]) == 1) or (p in m.teams[1] and len(m.teams[1]) == 1)]
+            name = "Solo"
 
         num_won = len([m for m in team_matches if m.won(player)])
         win_rate = (num_won / len(team_matches)) if len(team_matches) > 0 else 0.0
@@ -103,7 +104,7 @@ def playerpage_view(context, request):
                  'num_won' : num_won,
                  'win_rate' : win_rate}
 
-        connectivity[p.name] = stats
+        connectivity[name] = stats
 
     num_played_opponents = sum([1 for (_,v) in connectivity.items() if v['num_played_together'] > 0])
 

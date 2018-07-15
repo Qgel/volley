@@ -24,6 +24,17 @@ class Player(Persistent):
         self._rating = trueskill.Rating()
         # List of matches this player participated in
         self.matches = PersistentList()
+        # History of skill
+        self.history = PersistentList()
+
+    def add_match(self, match):
+        self.matches.append(match)
+        self.history.append({
+            'match': match,
+            'skill' : self.skill(),
+            'confidence' : self.confidence(),
+            'exposure' : self.exposure()
+        })
 
     def set_rating(self, rating):
         self._rating = rating
@@ -183,16 +194,17 @@ class Game(Persistent):
 
         for r, p in zip(new_ratings[0], match.teams[0]):
             p.set_rating(r)
-            p.matches.append(match)
+            p.add_match(match)
 
         for r, p in zip(new_ratings[1], match.teams[1]):
             p.set_rating(r)
-            p.matches.append(match)
+            p.add_match(match)
 
     def recalculate_ratings(self):
         for player in self.players.values():
             player.reset_rating()
             player.matches.clear()
+            player.history.clear()
 
         for match in self.matches:
             match.init_stats()
@@ -210,7 +222,7 @@ class Context(PersistentMapping):
     __parent__ = __name__ = None
 
     # Bump this anytime the model changes, and add migration code to upgrade_db() so old databases are updated on load
-    db_version = 2
+    db_version = 3
 
     def __init__(self):
         # The current version of this database instance. Used to determine if a database upgrade is necessary
@@ -240,6 +252,16 @@ def upgrade_db(context):
         for g in context.games.values():
             g.recalculate_ratings()
         context.db_version = 2
+
+    # Add Rating history to all players
+    if(context.db_version == 2):
+        for g in context.games.values():
+            for p in g.players.values():
+                p.history = PersistentList()
+                p._p_changed = True
+            g.recalculate_ratings()
+        context.db_version = 3
+
 
 
 def appmaker(zodb_root):

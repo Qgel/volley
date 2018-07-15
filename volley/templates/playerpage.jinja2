@@ -68,19 +68,20 @@
             </div>
         </div>
 
+        <div class="sixteen wide column" id="skillgraph"></div>
+
         <div class="eight wide column">
             {% set matches = player.matches %}
             {% include 'match_table.jinja2' %}
         </div>
-        <div class="eight wide column" id="wingraph">
-
-        </div>
+        <div class="eight wide column" id="wingraph"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/d3@5.5.0/dist/d3.min.js"></script>
     <script src="{{ request.static_url('volley:static/winchance_player_graph.js') }}"></script>
+    <script src="{{ request.static_url('volley:static/skillgraph.js') }}"></script>
     <script>
-        data = [
+        winchance_connectivity_data = [
             {% for c in connectivity if not connectivity[c]['num_played_together'] == 0 %}
                 {
                     score: {{ "%0.1f" % (connectivity[c]['win_rate'] * 100)}},
@@ -89,9 +90,25 @@
                 },
             {% endfor %}
         ];
-        winchance_player_graph("#wingraph", data, {{ win_rate }})
+        winchance_player_graph("#wingraph", winchance_connectivity_data, {{ win_rate }});
+
+        skillgraph_data = [
+            {% for h in player.history %}
+                {
+                    index: {{ loop.index0 }},
+                    skill: {{ h['skill'] }},
+                    confidence_lower: {{ h['skill'] - 2*h['confidence'] }},
+                    confidence_upper: {{ h['skill'] + 2*h['confidence'] }},
+                    win : {{ h['match'].won(player) | int }},
+                    rating: {{ h['exposure'] }}
+                },
+            {% endfor %}
+        ];
+        skillgraph('#skillgraph', skillgraph_data);
     </script>
 
     <link rel="stylesheet" href="{{ request.static_url('volley:static/winchance_player_graph.css') }}">
+    <link rel="stylesheet" href="{{ request.static_url('volley:static/skillgraph.css') }}">
+
 
 {% endblock %}
