@@ -35,7 +35,7 @@ winchance_player_graph = function (anchor, data, total_winchance, width = 350, h
     var arc = d3.arc()
         .innerRadius(innerRadius)
         .outerRadius(function (d) {
-            return (radius - innerRadius) * (d.data.score / 100.0) + innerRadius;
+            return (radius - innerRadius) * (Math.max(d.data.score, 5) / 100.0) + innerRadius;
         });
 
     var outlineArc = d3.arc()
@@ -70,7 +70,7 @@ winchance_player_graph = function (anchor, data, total_winchance, width = 350, h
         .text(total_winchance + "%");
 
     var labelGroup = g.attr("transform", function (d) {
-        var outerRadius = (radius - innerRadius) * (d.data.score / 100.0) + innerRadius;
+        var outerRadius = (radius - innerRadius) * (Math.max(d.data.score, 5) / 100.0) + innerRadius;
         var centerAngle = d.startAngle + (d.endAngle - d.startAngle) / 2;
         var rotate = ((centerAngle * 180 / Math.PI) - 90.0);
         if (centerAngle > Math.PI)
