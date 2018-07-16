@@ -4,7 +4,7 @@ from pyramid.response import Response
 
 import pyramid.httpexceptions as exceptions
 
-from itertools import combinations
+from itertools import combinations, groupby
 
 from .models import Context, Match
 
@@ -110,11 +110,17 @@ def playerpage_view(context, request):
     for m in player.matches:
         opponent_team = m.teams[0] if player in m.teams[1] else m.teams[1]
         opponents.update(opponent_team)
-
     num_played_opponents = len(opponents)
 
+    wins = [m.won(player) for m in player.matches]
+    def find_streak(v):
+        return max(sum([1 for _ in run]) for val,run in groupby(wins) if (val == v))
+    longest_winstreak = find_streak(True)
+    longest_lossstreak = find_streak(False)
+
     return {'game': game, 'all_games' : all_games, 'player' : player, 'connectivity' : connectivity,
-           'player_rank' : player_rank, 'num_played_opponents' : num_played_opponents}
+           'player_rank' : player_rank, 'num_played_opponents' : num_played_opponents,
+            'longest_winstreak' : longest_winstreak, 'longest_lossstreak' : longest_lossstreak}
 
 @view_config(context=Context, route_name="match_add")
 def game_add(context, request):

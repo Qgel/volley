@@ -29,16 +29,16 @@
                 </div>
                 <div class="statistic">
                     <div class="value">
+                        {{ longest_winstreak }}<span style="font-size:20%; line-height:1em">W</span>
+                        / {{ longest_lossstreak }}<span style="font-size:20%; line-height:1em">L</span>
                         {% if player.matches %}
                             {% set win_rate = "%1.0f" % (((player.wins()|length)/(player.matches|length))*100) %}
                         {% else %}
                             {% set win_rate = "?" %}
                         {% endif %}
-
-                        {{ win_rate }}%
                     </div>
                     <div class="label">
-                        Win Chance
+                        Longest Streak
                     </div>
                 </div>
                 <div class="statistic">
@@ -90,7 +90,14 @@
                 },
             {% endfor %}
         ];
-        winchance_player_graph("#wingraph", winchance_connectivity_data, {{ win_rate }});
+
+        {% if player.matches %}
+            winrate = {{ "%1.0f" % (((player.wins()|length)/(player.matches|length))*100) }};
+        {% else %}
+            winrate = "?";
+        {% endif %}
+
+        winchance_player_graph("#wingraph", winchance_connectivity_data, winrate);
 
         skillgraph_data = [
             {% for h in player.history %}
@@ -99,7 +106,7 @@
                     skill: {{ h['skill'] }},
                     confidence_lower: {{ h['skill'] - 2*h['confidence'] }},
                     confidence_upper: {{ h['skill'] + 2*h['confidence'] }},
-                    win : {{ h['match'].won(player) | int }},
+                    win: {{ h['match'].won(player) | int }},
                     rating: {{ h['exposure'] }}
                 },
             {% endfor %}
