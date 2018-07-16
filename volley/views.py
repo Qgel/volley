@@ -106,7 +106,12 @@ def playerpage_view(context, request):
 
         connectivity[name] = stats
 
-    num_played_opponents = sum([1 for (_,v) in connectivity.items() if v['num_played_together'] > 0])
+    opponents = set()
+    for m in player.matches:
+        opponent_team = m.teams[0] if player in m.teams[1] else m.teams[1]
+        opponents.update(opponent_team)
+
+    num_played_opponents = len(opponents)
 
     return {'game': game, 'all_games' : all_games, 'player' : player, 'connectivity' : connectivity,
            'player_rank' : player_rank, 'num_played_opponents' : num_played_opponents}
