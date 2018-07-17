@@ -247,14 +247,8 @@ def upgrade_db(context):
     if Context.db_version == context.db_version:
         return
 
-    # Odds calculation changed, recalculate all rating entries.
-    if(context.db_version == 1):
-        for g in context.games.values():
-            g.recalculate_ratings()
-        context.db_version = 2
-
     # Add Rating history to all players
-    if(context.db_version == 2):
+    if(context.db_version == 1 or context.db_version == 2):
         for g in context.games.values():
             for p in g.players.values():
                 p.history = PersistentList()
