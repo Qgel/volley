@@ -60,6 +60,9 @@ class Player(Persistent):
 
     def losses(self):
         return [m for m in self.matches if not m.won(self) and not m.draw()]
+        
+    def __repr__(self):
+        return self.name
 
 
 class Match(Persistent):
@@ -132,6 +135,9 @@ class Match(Persistent):
 
     def players(self):
         return self.teams[0] + self.teams[1]
+        
+    def __str__(self):
+        return "%s: Team A: %s, Team B: %s, Score: %d - %d" %(str(self.date), str(self.teams[0]), str(self.teams[1]), self.score[0], self.score[1])
 
 
 class Game(Persistent):

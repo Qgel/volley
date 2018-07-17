@@ -1,6 +1,7 @@
 from pyramid.view import view_config, notfound_view_config
 from pyramid.compat import escape
 from pyramid.response import Response
+import logging
 
 import pyramid.httpexceptions as exceptions
 
@@ -10,6 +11,7 @@ from collections import OrderedDict
 
 from .models import Context, Match
 
+log = logging.getLogger(__name__)
 
 @notfound_view_config(append_slash=True)
 def notfound(request):
@@ -172,6 +174,8 @@ def game_add(context, request):
     game = get_game(context, request.matchdict['game'])
     game.add_match([team_a, team_b], [score_a, score_b])
 
+    log.info("Added match %s", str(game.matches[-1]))
+
     return Response(status='200 OK')
 
 
@@ -184,7 +188,7 @@ def match_delete(context, request):
     match = [m for m in game.matches if str(m.uuid) == uuid]
     if len(match) != 1:
         raise exceptions.HTTPNotFound
-
-    game.delete_match(match[0])
-
+    
+    log.info("Deleted match %s", str(match[0]))
+    game.delete_match(match[0])    
     return exceptions.HTTPFound("/{}/".format(game_name))
