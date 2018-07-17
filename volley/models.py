@@ -79,7 +79,7 @@ class Match(Persistent):
 
     def init_stats(self):
         a_win_probability = Match.win_probability(self.teams[0], self.teams[1])
-        frac = Fraction(int(round(a_win_probability * 10)), int(round((1 - a_win_probability) * 10)))
+        frac = Fraction(int(max(round(a_win_probability * 10), 1)), int(max(round((1 - a_win_probability) * 10), 1)))
         self.stats = {
             'odds_a': frac.numerator,
             'odds_b': frac.denominator
