@@ -114,7 +114,7 @@ def playerpage_view(context, request):
 
     wins = [m.won(player) for m in player.matches]
     def find_streak(v):
-        return max(sum([1 for _ in run]) for val,run in groupby(wins) if (val == v))
+        return max([sum([1 for _ in run]) for val,run in groupby(wins) if (val == v)] + [0])
     longest_winstreak = find_streak(True)
     longest_lossstreak = find_streak(False)
 
