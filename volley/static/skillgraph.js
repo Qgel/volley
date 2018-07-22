@@ -84,7 +84,18 @@ function make_graph(svg, data, x, y) {
             return d.win === 1
         })
         .attr('r', 5)
-        .attr('clip-path', 'url(#rect-clip)');
+        .attr('clip-path', 'url(#rect-clip)')
+        .attr('data-html', function (d) {
+            color = "green";
+            sign = "+";
+            if (d.rating_change < 0.0) {
+                color = "red";
+                sign = "";
+            }
+
+            return '<div class="header">' + d.date + '</div>'
+                   + '<div class="content">Rating: <span style="color:' + color + '">'+ sign + d.rating_change.toPrecision(2) +'</span></div>';
+        });
 }
 
 function run_transition(chartWidth, rectClip) {
@@ -133,4 +144,9 @@ function skillgraph(anchor, data, svgWidth = 1100, svgHeight = 200) {
     make_axes(svg, xAxis, yAxis, chartHeight);
     make_graph(svg, data, x, y);
     run_transition(chartWidth, rectClip);
+
+    // Create popup on hover over the skillbars
+    $('.match-indicator').popup({
+        hoverable: true
+    });
 }
