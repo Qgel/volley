@@ -92,7 +92,7 @@ def winchance_connectivity(players, player, teammates):
         name = p.name
         # For ourselves, look at solo games. If we are calculating connectivity for opponents,
         # proceed as normal
-        if not teammates and p == player:
+        if teammates and p == player:
             team_matches = [m for m in player.matches if
                             (p in m.teams[0] and len(m.teams[0]) == 1) or (p in m.teams[1] and len(m.teams[1]) == 1)]
             name = "Solo"
