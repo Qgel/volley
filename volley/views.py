@@ -6,6 +6,8 @@ import pyramid.httpexceptions as exceptions
 
 from itertools import combinations, groupby
 
+from collections import OrderedDict
+
 from .models import Context, Match
 
 
@@ -105,7 +107,7 @@ def winchance_connectivity(players, player, teammates):
 
         connectivity[name] = stats
 
-    return connectivity
+    return OrderedDict(sorted(connectivity.items(), key=lambda c: c[1]['num_played_together'] + c[1]['win_rate'], reverse=True))
 
 
 @view_config(context=Context, renderer='templates/playerpage.jinja2', route_name="playerpage")
