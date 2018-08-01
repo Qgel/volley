@@ -12,10 +12,10 @@
         <tbody>
         {% for pairing in pairings_list %}
             <tr>
-                <td>{% for p in pairing['team1'] %}{{ p.name }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+                <td>{% for p in pairing['team1'] %}<a href="../player/{{ p.name }}/" class="playerlink">{{ p.name }}</a>{% if not loop.last %}<br>{% endif %}{% endfor %}
                 </td>
                 <td>{{ "%.1f%%" % (pairing['quality'] * 100) }}</td>
-                <td>{% for p in pairing['team2'] %}{{ p.name }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+                <td>{% for p in pairing['team2'] %}<a href="../player/{{ p.name }}/" class="playerlink">{{ p.name }}</a>{% if not loop.last %}<br>{% endif %}{% endfor %}
                 </td>
             </tr>
         {% endfor %}

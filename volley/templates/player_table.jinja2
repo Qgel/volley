@@ -18,7 +18,7 @@
     <tbody>
     {% for p in players %}
         <tr>
-            <td>{{ p.name }}</td>
+            <td><a href="./player/{{ p.name }}/" class="playerlink">{{ p.name }}</a></td>
             <td>{{ p.matches|length }}</td>
             <td>{{ p.wins()|length }}</td>
             <td>{{ p.losses()|length }}</td>
