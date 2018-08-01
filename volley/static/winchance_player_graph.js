@@ -85,6 +85,15 @@ winchance_player_graph = function (anchor, data, total_winchance, width = 350, h
                 return "end";
             return "start";
         })
+        .style("visibility", function (d) {
+            let angle = d.endAngle - d.startAngle;
+            let outerRadius = (radius - innerRadius) * (Math.max(d.data.score, 5) / 100.0) + innerRadius;
+            let len = (angle / (Math.PI * 2)) * outerRadius;
+
+            if (len < 3.5)
+                return "hidden";
+            return "visible";
+        })
         .attr("dy", ".35em");
 
 
