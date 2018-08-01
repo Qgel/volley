@@ -1,4 +1,4 @@
-winchance_player_graph = function (anchor, data, total_winchance, width = 350, height = 320, labelSpace = 80) {
+winchance_player_graph = function (anchor, data, total_winchance, width = 350, height = 380, labelSpace = 100) {
     let radius = Math.min(width - labelSpace, height - labelSpace) / 2,
         innerRadius = 0.3 * radius;
 

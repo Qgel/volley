@@ -1,5 +1,15 @@
 {% extends 'base.jinja2' %}
 
+{% macro connectivity_data(connectivity) -%}
+    {% for c in connectivity if not connectivity[c]['num_played_together'] == 0 %}
+        {
+        score: {{ "%0.1f" % (connectivity[c]['win_rate'] * 100) }},
+        width: {{ connectivity[c]['num_played_together'] }},
+        name: "{{ c }}"
+        },
+    {% endfor %}
+{%- endmacro %}
+
 {% block body %}
 
     <div class="ui main center aligned container grid">
@@ -74,7 +84,24 @@
             {% set matches = player.matches %}
             {% include 'match_table.jinja2' %}
         </div>
-        <div class="eight wide column" id="wingraph"></div>
+        <div class="eight wide column">
+            <div class="ui one cards">
+                <div class="card">
+                    <div class="content">
+                        <div class="header">Teammates</div>
+                        <div class="meta">{{ player.name }}'s Win Chance with different Teammates</div>
+                        <div class="description wingraph" id="teammategraph"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="content">
+                        <div class="header">Opponents</div>
+                        <div class="meta">{{ player.name }}'s Win Chance against different Opponents</div>
+                        <div class="description wingraph" id="opponentgraph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/d3@5.5.0/dist/d3.min.js"></script>
@@ -82,13 +109,11 @@
     <script src="{{ request.static_url('volley:static/skillgraph.js') }}"></script>
     <script>
         winchance_connectivity_data = [
-            {% for c in connectivity if not connectivity[c]['num_played_together'] == 0 %}
-                {
-                    score: {{ "%0.1f" % (connectivity[c]['win_rate'] * 100)}},
-                    width: {{ connectivity[c]['num_played_together'] }},
-                    name: "{{ c }}"
-                },
-            {% endfor %}
+            {{ connectivity_data(team_connectivity) }}
+        ];
+
+        opponent_connectivity_data = [
+            {{ connectivity_data(opponent_connectivity) }}
         ];
 
         {% if player.matches %}
@@ -97,7 +122,8 @@
             winrate = "?";
         {% endif %}
 
-        winchance_player_graph("#wingraph", winchance_connectivity_data, winrate);
+        winchance_player_graph("#teammategraph", winchance_connectivity_data, winrate);
+        winchance_player_graph("#opponentgraph", opponent_connectivity_data, winrate);
 
         skillgraph_data = [
             {% for h in player.history %}

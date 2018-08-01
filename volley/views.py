@@ -8,9 +8,11 @@ from itertools import combinations, groupby
 
 from .models import Context, Match
 
+
 @notfound_view_config(append_slash=True)
 def notfound(request):
     return exceptions.HTTPNotFound()
+
 
 def get_game(context, name):
     """
@@ -24,18 +26,21 @@ def get_game(context, name):
 
     return context.games[game_name]
 
+
 @view_config(context=Context, route_name="index")
 def index_view(context, request):
     game_names = list(context.games.keys())
     return exceptions.HTTPFound("/{}/".format(game_names[0]))
 
+
 @view_config(context=Context, renderer='templates/game.jinja2', route_name="game")
 def game_view(context, request):
     game = get_game(context, request.matchdict['game'])
-    matches = sorted(game.matches, key = lambda m: m.date, reverse=True)
-    players = sorted(game.players.values(), key = lambda p: p.exposure(), reverse=True)
+    matches = sorted(game.matches, key=lambda m: m.date, reverse=True)
+    players = sorted(game.players.values(), key=lambda p: p.exposure(), reverse=True)
     all_games = [g.name for g in context.games.values()]
-    return {'game': game, 'matches' : matches, 'players' : players, 'all_games' : all_games}
+    return {'game': game, 'matches': matches, 'players': players, 'all_games': all_games}
+
 
 @view_config(context=Context, renderer='templates/matchmaking.jinja2', route_name="matchmaking")
 def matchmaking_view(context, request):
@@ -54,15 +59,15 @@ def matchmaking_view(context, request):
             return {'team1': t1, 'team2': t2, 'quality': quality}
 
         # Calculate match quality for all team compositions
-        for split in range(1, int(len(players)/2)):
+        for split in range(1, int(len(players) / 2)):
             for t1 in combinations(players, split):
                 pairings.append(make_pairing(t1))
 
         # Half-Half point with even players needs special handling, because otherwise we will generate
         # The same teams multiple times (e.g. AB vs CD and CD vs AB)
-        halfside = list(combinations(players, int(len(players)/2)))
+        halfside = list(combinations(players, int(len(players) / 2)))
         if len(players) % 2 == 0:
-            halfside = halfside[:int(len(halfside)/2)]
+            halfside = halfside[:int(len(halfside) / 2)]
         for t1 in halfside:
             pairings.append(make_pairing(t1))
 
@@ -73,8 +78,35 @@ def matchmaking_view(context, request):
     pairings_ok = [p for p in pairings if p['quality'] >= 0.1 and not p in pairings_good]
     pairings_bad = [p for p in pairings if not p in pairings_good and not p in pairings_ok]
 
-    return {'game': game, 'all_games' : all_games, 'players' : players,
-            'pairings_good' : pairings_good, 'pairings_ok' : pairings_ok, 'pairings_bad' : pairings_bad}
+    return {'game': game, 'all_games': all_games, 'players': players,
+            'pairings_good': pairings_good, 'pairings_ok': pairings_ok, 'pairings_bad': pairings_bad}
+
+
+def winchance_connectivity(players, player, teammates):
+    team_ids = [(0, 0), (1, 1)] if teammates else [(0, 1), (1, 0)]
+    connectivity = {}
+    for p in players:
+        team_matches = [m for m in player.matches if
+                        (p in m.teams[team_ids[0][0]] and player in m.teams[team_ids[0][1]]) or
+                        (p in m.teams[team_ids[1][0]] and player in m.teams[team_ids[1][1]])]
+        name = p.name
+        # For ourselves, look at solo games. If we are calculating connectivity for opponents,
+        # proceed as normal
+        if not teammates and p == player:
+            team_matches = [m for m in player.matches if
+                            (p in m.teams[0] and len(m.teams[0]) == 1) or (p in m.teams[1] and len(m.teams[1]) == 1)]
+            name = "Solo"
+
+        num_won = len([m for m in team_matches if m.won(player)])
+        win_rate = (num_won / len(team_matches)) if len(team_matches) > 0 else 0.0
+        stats = {'num_played_together': len(team_matches),
+                 'num_won': num_won,
+                 'win_rate': win_rate}
+
+        connectivity[name] = stats
+
+    return connectivity
+
 
 @view_config(context=Context, renderer='templates/playerpage.jinja2', route_name="playerpage")
 def playerpage_view(context, request):
@@ -89,22 +121,8 @@ def playerpage_view(context, request):
     players = sorted(game.players.values(), key=lambda p: p.exposure(), reverse=True)
     player_rank = players.index(player) + 1
 
-    connectivity = {}
-    for p in players:
-        team_matches = [m for m in player.matches if (p in m.teams[0] and player in m.teams[0]) or (p in m.teams[1] and player in m.teams[1])]
-        name = p.name
-        # For ourselves, look at solo games
-        if p == player:
-            team_matches = [m for m in player.matches if (p in m.teams[0] and len(m.teams[0]) == 1) or (p in m.teams[1] and len(m.teams[1]) == 1)]
-            name = "Solo"
-
-        num_won = len([m for m in team_matches if m.won(player)])
-        win_rate = (num_won / len(team_matches)) if len(team_matches) > 0 else 0.0
-        stats = {'num_played_together' : len(team_matches),
-                 'num_won' : num_won,
-                 'win_rate' : win_rate}
-
-        connectivity[name] = stats
+    team_connectivity = winchance_connectivity(players, player, True)
+    opponent_connectivy = winchance_connectivity(players, player, False)
 
     opponents = set()
     for m in player.matches:
@@ -113,14 +131,18 @@ def playerpage_view(context, request):
     num_played_opponents = len(opponents)
 
     wins = [m.won(player) for m in player.matches]
+
     def find_streak(v):
-        return max([sum([1 for _ in run]) for val,run in groupby(wins) if (val == v)] + [0])
+        return max([sum([1 for _ in run]) for val, run in groupby(wins) if (val == v)] + [0])
+
     longest_winstreak = find_streak(True)
     longest_lossstreak = find_streak(False)
 
-    return {'game': game, 'all_games' : all_games, 'player' : player, 'connectivity' : connectivity,
-           'player_rank' : player_rank, 'num_played_opponents' : num_played_opponents,
-            'longest_winstreak' : longest_winstreak, 'longest_lossstreak' : longest_lossstreak}
+    return {'game': game, 'all_games': all_games, 'player': player,
+            'team_connectivity': team_connectivity, 'opponent_connectivity': opponent_connectivy,
+            'player_rank': player_rank, 'num_played_opponents': num_played_opponents,
+            'longest_winstreak': longest_winstreak, 'longest_lossstreak': longest_lossstreak}
+
 
 @view_config(context=Context, route_name="match_add")
 def game_add(context, request):
@@ -150,6 +172,7 @@ def game_add(context, request):
 
     return Response(status='200 OK')
 
+
 @view_config(context=Context, route_name="match_delete")
 def match_delete(context, request):
     uuid = request.params['id']
@@ -163,9 +186,3 @@ def match_delete(context, request):
     game.delete_match(match[0])
 
     return exceptions.HTTPFound("/{}/".format(game_name))
-
-
-
-
-
-
