@@ -1,5 +1,5 @@
 {% macro player_entry(p, match) -%}
-    <a href="./player/{{ p.name }}/" class="playerlink">{{ p.name }}</a>&nbsp;&nbsp;<span style="font-size:0.7rem">({% set rating_change = match.stats['rating_changes'][p.name] %}<span style="color:{% if rating_change < 0.0 %}red{% else %}green{% endif %}">{{ "%+0.2f" % rating_change }}</span>)</span>
+    <a href="/{{ game.name }}/player/{{ p.name }}/" class="playerlink">{{ p.name }}</a>&nbsp;&nbsp;<span style="font-size:0.7rem">({% set rating_change = match.stats['rating_changes'][p.name] %}<span style="color:{% if rating_change < 0.0 %}red{% else %}green{% endif %}">{{ "%+0.2f" % rating_change }}</span>)</span>
 {%- endmacro %}
 
 <table class="ui celled striped unstackable table" id="data">
