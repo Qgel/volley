@@ -36,17 +36,11 @@
     <tfoot>
     <tr>
         <th colspan="6">
-            <div class="ui right floated pagination menu">
-                <a class="icon item" rel="0" id="t-prev">
-                    <i class="left chevron icon"></i>
-                </a>
-                <a class="icon item" rel="0" id="t-next">
-                    <i class="right chevron icon"></i>
-                </a>
-            </div>
+            <span class="paginator"></span>
         </th>
     </tr>
     </tfoot>
 </table>
 
+<script src="{{ request.static_url('volley:static/paginathing.js') }}"></script>
 <script src="{{ request.static_url('volley:static/match_table.js') }}"></script>
