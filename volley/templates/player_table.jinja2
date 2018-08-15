@@ -1,6 +1,7 @@
 <table id="player-table" class="ui celled striped sortable unstackable table">
     <thead>
     <tr>
+        <th class="num" data-title="Rank" data-content="The Rank of the player"></th>
         <th data-title="Player" data-content="The name of the player">Player</th>
         <th class="num" data-title="Games" data-content="The total number of games">#</th>
         <th class="num" data-title="Wins" data-content="The total number of wins">W</th>
@@ -18,6 +19,7 @@
     <tbody>
     {% for p in players %}
         <tr>
+            <td>{{ loop.index }}</td>
             <td><a href="./player/{{ p.name }}/" class="playerlink">{{ p.name }}</a></td>
             <td>{{ p.matches|length }}</td>
             <td>{{ p.wins()|length }}</td>
