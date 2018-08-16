@@ -28,7 +28,7 @@ winchance_player_graph = function (anchor, data, total_winchance, width = 350, h
     function tip(selection) {
         selection.classed('aster-popup', true)
             .attr('data-html', function (d) {
-                return d.data.name + " (" + d.data.score + "%)";
+                return d.data.name + ": " + d.data.num_won + "/" + d.data.width + " (" + d.data.score + "%)";
             });
     }
 
@@ -115,4 +115,4 @@ winchance_player_graph = function (anchor, data, total_winchance, width = 350, h
         boundary: '.aster-popup',
         lastResort: true
     });
-}
+};

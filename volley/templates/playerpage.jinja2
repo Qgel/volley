@@ -5,6 +5,7 @@
         {
         score: {{ "%0.1f" % (connectivity[c]['win_rate'] * 100) }},
         width: {{ connectivity[c]['num_played_together'] }},
+        num_won: {{ connectivity[c]['num_won'] }},
         name: "{{ c }}"
         },
     {% endfor %}
