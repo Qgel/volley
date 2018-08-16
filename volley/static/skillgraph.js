@@ -94,7 +94,7 @@ function make_graph(svg, data, x, y) {
             }
 
             return '<div class="header">' + d.date + '</div>'
-                   + '<div class="content">Rating: <span style="color:' + color + '">'+ sign + d.rating_change.toPrecision(2) +'</span></div>';
+                   + '<div class="content">Rating: ' + d.rating.toPrecision(3) +  ' (<span style="color:' + color + '">'+ sign + d.rating_change.toPrecision(2) +'</span>)</div>';
         });
 }
 

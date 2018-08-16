@@ -133,6 +133,7 @@
                     skill: {{ h['skill'] }},
                     confidence_lower: {{ h['skill'] - 2*h['confidence'] }},
                     confidence_upper: {{ h['skill'] + 2*h['confidence'] }},
+                    rating: {{ h['exposure'] }},
                     win: {{ h['match'].won(player) | int }},
                     rating: {{ h['exposure'] }},
                     date: "{{ h['match'].date.strftime("%d.%m.%y") }}",
