@@ -59,7 +59,7 @@ def matchmaking_view(context, request):
 
         def make_pairing(t1):
             t2 = [p for p in players if p not in t1]
-            quality = Match.draw_probability(t1, t2)
+            quality = game.draw_probability(t1, t2)
             return {'team1': t1, 'team2': t2, 'quality': quality}
 
         # Calculate match quality for all team compositions

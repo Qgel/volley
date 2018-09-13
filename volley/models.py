@@ -70,8 +70,9 @@ class Match(Persistent):
     A Match is composed of two teams and a score/winner of the match
     """
 
-    def __init__(self, teams, score):
+    def __init__(self, game, teams, score):
         self.date = datetime.now()
+        self.game = game
 
         self.teams = teams
         self.score = score
@@ -81,7 +82,7 @@ class Match(Persistent):
         self.init_stats()
 
     def init_stats(self):
-        a_win_probability = Match.win_probability(self.teams[0], self.teams[1])
+        a_win_probability = self.game.win_probability(self.teams[0], self.teams[1])
         frac = Fraction(int(max(round(a_win_probability * 10), 1)), int(max(round((1 - a_win_probability) * 10), 1)))
         self.stats = {
             'odds_a': frac.numerator,
@@ -97,25 +98,6 @@ class Match(Persistent):
         player_ratings = self.stats['rating_changes']
         for p in self.players():
             player_ratings[p.name] = p.exposure() - player_ratings[p.name]
-
-    @staticmethod
-    def win_probability(team1, team2):
-        """"
-        Calculate the win probability of team1 over team2 given the skill ratings of
-        all the players in the teams.
-        """
-        delta_mu = sum(r.skill() for r in team1) - sum(r.skill() for r in team2)
-        sum_sigma = sum(r.confidence() ** 2 for r in itertools.chain(team1, team2))
-        size = len(team1) + len(team2)
-        denom = math.sqrt(size * (trueskill.BETA * trueskill.BETA) + sum_sigma)
-        ts = trueskill.global_env()
-        return ts.cdf(delta_mu / denom)
-
-    @staticmethod
-    def draw_probability(team1, team2):
-        r1 = [p.get_rating() for p in team1]
-        r2 = [p.get_rating() for p in team2]
-        return trueskill.quality([r1, r2])
 
     def team_a_won(self):
         return self.score[0] > self.score[1]
@@ -152,6 +134,8 @@ class Game(Persistent):
         self.players = PersistentMapping()
         # List of all matches for this game
         self.matches = PersistentList()
+        # Whether to use average instead of sum-of-skill for this game
+        self.use_average_team_skill = True
 
     def delete_match(self, match):
         if not match in self.matches:
@@ -175,7 +159,7 @@ class Game(Persistent):
         players_b = [self.get_player(name) for name in teams[1]]
 
         # Add Match to the Database
-        match = Match([players_a, players_b], score)
+        match = Match(self, [players_a, players_b], score)
         self.matches.append(match)
 
         self.update_player_ratings(match)
@@ -196,7 +180,8 @@ class Game(Persistent):
             rank_indices = [0, 0]
 
         # Calculate new Ratings using trueskill algorithm
-        new_ratings = trueskill.rate([ratings_a, ratings_b], ranks=rank_indices)
+        new_ratings = trueskill.rate([ratings_a, ratings_b], ranks=rank_indices,
+                                     weights=self.team_weights(ratings_a, ratings_b))
 
         for r, p in zip(new_ratings[0], match.teams[0]):
             p.set_rating(r)
@@ -223,12 +208,46 @@ class Game(Persistent):
 
         return self.players[name]
 
+    # Calcualte player weights for a match based on whether average or additive ratings
+    # are used for this game
+    def team_weights(self, team1, team2):
+        ratings = [team1, team2]
+        weights = [[1 for _ in r] for r in ratings]
+        if self.use_average_team_skill:
+            # Adjust weights by team-size. This effectively causes the TrueSkill algorithm to
+            # look at the average instead of the sum of skills
+            min_team_size = min(map(len, ratings))
+            weights = [[min_team_size / float(len(r)) for _ in r] for r in ratings]
+        return weights
+
+    def win_probability(self, team1, team2):
+        """"
+        Calculate the win probability of team1 over team2 given the skill ratings of
+        all the players in the teams.
+        """
+
+        def skill_sum(team, weights):
+            return sum([v.skill()*w for (v,w) in zip(team, weights)])
+
+        weights = self.team_weights(team1, team2)
+        delta_mu = skill_sum(team1, weights[0]) - skill_sum(team2, weights[1])
+        sum_sigma = sum((r.confidence() * w) ** 2 for (r, w) in zip(itertools.chain(team1, team2), itertools.chain(*weights)))
+        size = len(team1) + len(team2)
+        denom = math.sqrt(size * (trueskill.BETA * trueskill.BETA) + sum_sigma)
+        ts = trueskill.global_env()
+        return ts.cdf(delta_mu / denom)
+
+    def draw_probability(self, team1, team2):
+        r1 = [p.get_rating() for p in team1]
+        r2 = [p.get_rating() for p in team2]
+        return trueskill.quality([r1, r2], weights=self.team_weights(team1, team2))
+
 
 class Context(PersistentMapping):
     __parent__ = __name__ = None
 
     # Bump this anytime the model changes, and add migration code to upgrade_db() so old databases are updated on load
-    db_version = 3
+    db_version = 4
 
     def __init__(self):
         # The current version of this database instance. Used to determine if a database upgrade is necessary
@@ -254,7 +273,7 @@ def upgrade_db(context):
         return
 
     # Add Rating history to all players
-    if(context.db_version == 1 or context.db_version == 2):
+    if (context.db_version == 1 or context.db_version == 2):
         for g in context.games.values():
             for p in g.players.values():
                 p.history = PersistentList()
@@ -262,6 +281,13 @@ def upgrade_db(context):
             g.recalculate_ratings()
         context.db_version = 3
 
+    if (context.db_version == 3):
+        for g in context.games.values():
+            g.use_average_team_skill = True
+            for m in g.matches:
+                m.game = g
+            g.recalculate_ratings()
+        context.db_version = 4
 
 
 def appmaker(zodb_root):
