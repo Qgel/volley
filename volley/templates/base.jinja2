@@ -5,7 +5,7 @@
         <meta charset="utf-8"/>
         <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
         <title>Volley | Game Tracker</title>
-        <link rel="shortcut icon" href="{{ request.static_url('volley:static/volley-16x16.png') }}">
+        <link rel="shortcut icon" href="{{ request.static_url('volley:static/volley-16x16.png',_scheme='https') }}">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.3.1/dist/semantic.min.css">
     {% endblock %}
 </head>
@@ -22,9 +22,9 @@
 
         <a class="header item" href="/">
             <div>
-                <img src="{{ request.static_url('volley:static/volley.png') }}" height="32" width="32"
-                     alt="Volley | Game Tracker"/>
                 Volley
+                <img src="{{ request.static_url('volley:static/volley.png',_scheme='https') }}" height="32" width="32"
+                     alt="Volley | Game Tracker"/>
             </div>
         </a>
 

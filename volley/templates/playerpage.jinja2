@@ -106,8 +106,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/d3@5.5.0/dist/d3.min.js"></script>
-    <script src="{{ request.static_url('volley:static/winchance_player_graph.js') }}"></script>
-    <script src="{{ request.static_url('volley:static/skillgraph.js') }}"></script>
+    <script src="{{ request.static_url('volley:static/winchance_player_graph.js',_scheme='https') }}"></script>
+    <script src="{{ request.static_url('volley:static/skillgraph.js',_scheme='https') }}"></script>
     <script>
         winchance_connectivity_data = [
             {{ connectivity_data(team_connectivity) }}
@@ -144,8 +144,8 @@
         skillgraph('#skillgraph', skillgraph_data);
     </script>
 
-    <link rel="stylesheet" href="{{ request.static_url('volley:static/winchance_player_graph.css') }}">
-    <link rel="stylesheet" href="{{ request.static_url('volley:static/skillgraph.css') }}">
+    <link rel="stylesheet" href="{{ request.static_url('volley:static/winchance_player_graph.css',_scheme='https') }}">
+    <link rel="stylesheet" href="{{ request.static_url('volley:static/skillgraph.css',_scheme='https') }}">
 
 
 {% endblock %}
